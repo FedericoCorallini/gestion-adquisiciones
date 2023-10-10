@@ -1,46 +1,55 @@
 package com.giuct.adquisiciones.controller;
 
-import com.giuct.adquisiciones.model.entity.Adquisicion;
 import com.giuct.adquisiciones.model.entity.Servicio;
+import com.giuct.adquisiciones.service.ServicioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class AdquisicionController {
 
-    List<Adquisicion> adquisicionList = new ArrayList<>();
-    Adquisicion adquisicion1 = new Servicio();
-    adquisicionList.add(adquisicion1);
+    ServicioService servicioService;
 
-    GetMapping("/adquisiciones")
-    public ResponseEntity<List<Adquisicion>> getAdquisicionList(){
-        return ResponseEntity.ok(adquisicionList);
+    public AdquisicionController(ServicioService servicioService) {
+        this.servicioService = servicioService;
     }
 
-    PostMapping("/adquisiciones/crear")
-    public ResponseEntity<String> crearAdquisicion(@RequestBody Adquisicion adquisicion){
-        adquisicionList.add(adquisicion);
+    @GetMapping("/servicios")
+    public ResponseEntity<List<Servicio>> getServiciosList(){
+        return ResponseEntity.ok(servicioService.getServicios());
+    }
+
+    /*
+    @GetMapping("/servicios/{id}")
+    public ResponseEntity<Optional<Servicio>> obtenerServiciosList(@PathVariable Long id){
+        Optional<Servicio> servicio = servicioService.obtenerServicioById(id);
+        return ResponseEntity.ok(servicio);
+    }
+    */
+    @GetMapping("/servicios/{id}")
+    public ResponseEntity<String> obtenerServiciosList(@PathVariable Long id){
+        Servicio servicio = servicioService.getServicioById(id);
+        return ResponseEntity.ok(servicio.toString());
+    }
+
+    @PostMapping("/servicios")
+    public ResponseEntity<String> crearAdquisicion(@RequestBody Servicio servicio){
+        servicioService.agregarServicio(servicio);
         return ResponseEntity.ok("Adquisicion creada");
     }
 
-    DeleteMapping("/adquisiciones/{id}")
-    public ResponseEntity<String> eliminarAdquisicion(@PathVariable id){
-        Optional<Adquisicion> adquisicion = adquisicionList.stream()
-                .filter(a -> a.getId.equals(id))
-                .findFirst();
-        if (adquisicion.isPresent()){
-            adquisicionList.remove(adquisicion.get());
-            return ResponseEntity.ok("Adquisicion eliminada");
-        }
-        else{
-            return ResponseEntity.notFound().build();
-        }
+    @PutMapping("/servicios")
+    public ResponseEntity<String> modificarServicio(@RequestBody Servicio servicio){
+        servicioService.agregarServicio(servicio);
+        return ResponseEntity.ok("Servicio modificado");
     }
 
-
+    @DeleteMapping("/servicios/{id}")
+    public ResponseEntity<String> modificarServicio(@PathVariable Long id){
+        servicioService.eliminarServicio(id);
+        return ResponseEntity.ok("Servicio eliminado");
+    }
 
 }

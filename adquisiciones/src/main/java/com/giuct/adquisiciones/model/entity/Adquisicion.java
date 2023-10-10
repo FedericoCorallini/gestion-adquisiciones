@@ -1,20 +1,19 @@
 package com.giuct.adquisiciones.model.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 
-@Data @Getter @AllArgsConstructor
+@Data
+@MappedSuperclass
 public abstract class Adquisicion {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    protected Long id;
     @Column(name = "costo")
-    private float costo;
+    protected float costo;
     @Column(name = "descripcion")
-    private String descripcion;
+    protected String descripcion;
+
 }

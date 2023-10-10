@@ -1,9 +1,14 @@
 package com.giuct.adquisiciones.model.entity;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
-
+@Data
+@Entity
+@EqualsAndHashCode(callSuper = true)
+//@DiscriminatorValue("licencia")
 public class Licencia extends Adquisicion{
 
     @Column(name = "anio")
@@ -20,4 +25,6 @@ public class Licencia extends Adquisicion{
     private String numeroRelease;
     @Column(name = "version")
     private String version;
+
+
 }

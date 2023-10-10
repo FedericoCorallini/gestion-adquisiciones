@@ -1,12 +1,11 @@
 package com.giuct.adquisiciones.model.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.Date;
-
+@Data
+@Entity
 public class FuenteFinanciamiento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

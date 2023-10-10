@@ -1,9 +1,14 @@
 package com.giuct.adquisiciones.model.entity;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
-
+@Data
+@Entity
+@EqualsAndHashCode(callSuper = true)
 public class Bibliografia extends Adquisicion{
 
     @Column(name = "anio_publicacion")
@@ -24,4 +29,6 @@ public class Bibliografia extends Adquisicion{
     private String titulo;
     @Column(name = "url")
     private String url;
+
+
 }
