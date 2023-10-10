@@ -16,4 +16,8 @@ public abstract class Adquisicion {
     @Column(name = "descripcion")
     protected String descripcion;
 
+    @ManyToOne
+    @JoinColumn(name = "id_fuente_financiamiento")
+    protected FuenteFinanciamiento fuenteFinanciamiento;
+
 }

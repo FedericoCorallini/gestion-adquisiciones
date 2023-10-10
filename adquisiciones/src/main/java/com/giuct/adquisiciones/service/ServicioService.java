@@ -1,7 +1,7 @@
 package com.giuct.adquisiciones.service;
 
 import com.giuct.adquisiciones.model.entity.Servicio;
-import com.giuct.adquisiciones.repository.IRepositoty;
+import com.giuct.adquisiciones.repository.IServicioRepositoty;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,9 +10,9 @@ import java.util.Optional;
 
 @Service
 public class ServicioService {
-    private IRepositoty iRepositoty;
+    private IServicioRepositoty iRepositoty;
 
-    public ServicioService(IRepositoty iRepositoty) {
+    public ServicioService(IServicioRepositoty iRepositoty) {
         this.iRepositoty = iRepositoty;
     }
 
