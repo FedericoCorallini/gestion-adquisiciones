@@ -34,7 +34,7 @@ public class ServicioService {
         return servicio.stream().filter(s -> Objects.equals(s.getId(), id)).toList().stream().findFirst();
     }
     public Servicio getServicioById(Long id){
-        final Servicio servicio = iRepositoty.getById(id);
+        final Servicio servicio = iRepositoty.findById(id).get();
         return servicio;
     }
 

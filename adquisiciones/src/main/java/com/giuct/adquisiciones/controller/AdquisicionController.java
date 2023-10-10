@@ -29,9 +29,9 @@ public class AdquisicionController {
     }
     */
     @GetMapping("/servicios/{id}")
-    public ResponseEntity<String> obtenerServiciosList(@PathVariable Long id){
+    public ResponseEntity<Servicio> obtenerServiciosList(@PathVariable Long id){
         Servicio servicio = servicioService.getServicioById(id);
-        return ResponseEntity.ok(servicio.toString());
+        return ResponseEntity.ok(servicio);
     }
 
     @PostMapping("/servicios")
@@ -40,10 +40,16 @@ public class AdquisicionController {
         return ResponseEntity.ok("Adquisicion creada");
     }
 
-    @PutMapping("/servicios")
-    public ResponseEntity<String> modificarServicio(@RequestBody Servicio servicio){
-        servicioService.agregarServicio(servicio);
-        return ResponseEntity.ok("Servicio modificado");
+    @PutMapping("/servicios/{id}")
+    public ResponseEntity<?> modificarServicio(@RequestBody Servicio servicio, @PathVariable Long id){
+        try{
+            Servicio servicio1 = servicioService.getServicioById(id);
+            servicioService.agregarServicio(servicio);
+            return ResponseEntity.ok("Servicio modificado");
+        }
+        catch (Exception exception){
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/servicios/{id}")
