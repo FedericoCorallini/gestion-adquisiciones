@@ -3,6 +3,7 @@ package com.giuct.adquisiciones.controller;
 import com.giuct.adquisiciones.model.entity.Servicio;
 import com.giuct.adquisiciones.service.ServicioService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,9 +29,18 @@ public class AdquisicionController {
         return ResponseEntity.ok(servicio);
     }
     */
+
+
     @GetMapping("/servicios/{id}")
     public ResponseEntity<Servicio> obtenerServiciosList(@PathVariable Long id){
         Servicio servicio = servicioService.getServicioById(id);
+        return ResponseEntity.ok(servicio);
+    }
+
+
+    @GetMapping("/financiamiento/{idFinanciamiento}")
+    public ResponseEntity<List<Servicio>> getServiciosPorFinanciamiento(@PathVariable Long idFinanciamiento){
+        List<Servicio> servicio = servicioService.getByFinanciamiento(idFinanciamiento);
         return ResponseEntity.ok(servicio);
     }
 

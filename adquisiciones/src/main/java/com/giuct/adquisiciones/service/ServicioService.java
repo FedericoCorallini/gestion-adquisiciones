@@ -2,11 +2,12 @@ package com.giuct.adquisiciones.service;
 
 import com.giuct.adquisiciones.model.entity.Servicio;
 import com.giuct.adquisiciones.repository.IServicioRepositoty;
+import jakarta.persistence.EntityManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class ServicioService {
@@ -29,14 +30,14 @@ public class ServicioService {
         return iRepositoty.findAll();
     }
 
-    public Optional<Servicio> obtenerServicioById(Long id){
+    public List<Servicio> getByFinanciamiento(Long id){
         List<Servicio> servicio = iRepositoty.findAll();
-        return servicio.stream().filter(s -> Objects.equals(s.getId(), id)).toList().stream().findFirst();
+        return servicio.stream().filter(s -> Objects.equals(s.getFuenteFinanciamiento().getId(), id)).toList();
     }
     public Servicio getServicioById(Long id){
         final Servicio servicio = iRepositoty.findById(id).get();
+        //final Servicio servicio = iRepositoty.getReferenceById(id);
         return servicio;
     }
-
 
 }
