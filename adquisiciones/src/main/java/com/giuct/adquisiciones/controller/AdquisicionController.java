@@ -2,6 +2,7 @@ package com.giuct.adquisiciones.controller;
 
 import com.giuct.adquisiciones.model.entity.Servicio;
 import com.giuct.adquisiciones.service.ServicioService;
+import jakarta.annotation.security.RolesAllowed;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ public class AdquisicionController {
         this.servicioService = servicioService;
     }
 
+    @RolesAllowed("SYS_USER")
     @GetMapping("/servicios")
     public ResponseEntity<List<Servicio>> getServiciosList(){
         return ResponseEntity.ok(servicioService.getServicios());
@@ -38,7 +40,7 @@ public class AdquisicionController {
     }
 
 
-    @GetMapping("/financiamiento/{idFinanciamiento}")
+    @GetMapping("/servicios/financiamiento/{idFinanciamiento}")
     public ResponseEntity<List<Servicio>> getServiciosPorFinanciamiento(@PathVariable Long idFinanciamiento){
         List<Servicio> servicio = servicioService.getByFinanciamiento(idFinanciamiento);
         return ResponseEntity.ok(servicio);
