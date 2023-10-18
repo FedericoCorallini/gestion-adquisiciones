@@ -34,6 +34,12 @@ public class SecurityConfiguration {
                 .oauth2ResourceServer(oauth -> {
                     oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter));
                 })
+//                .oauth2ResourceServer(oauth2Configurer -> oauth2Configurer.jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(jwt -> {
+//                    Map<String, Collection<String>> realmAccess = jwt.getClaim("realm_access");
+//                    Collection<String> roles = realmAccess.get("roles");
+//                    var grantedAuthorities = roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(Collectors.toList());
+//                    return new JwtAuthenticationToken(jwt, grantedAuthorities);
+//                })))
                 .build();
 
     }

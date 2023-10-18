@@ -17,12 +17,13 @@ public class ServicioController {
         this.servicioService = servicioService;
     }
 
+    @RolesAllowed("SYS_ADMIN")
     @GetMapping("/servicios")
     public ResponseEntity<List<Servicio>> getServiciosList(){
         return ResponseEntity.ok(servicioService.getServicios());
     }
 
-
+    @RolesAllowed("SYS_USER")
     @GetMapping("/servicios/{id}")
     public ResponseEntity<Servicio> obtenerServiciosList(@PathVariable Long id){
         Servicio servicio = servicioService.getServicioById(id);
