@@ -2,8 +2,6 @@ package com.giuct.adquisiciones.service;
 
 import com.giuct.adquisiciones.model.entity.Servicio;
 import com.giuct.adquisiciones.repository.IServicioRepositoty;
-import jakarta.persistence.EntityManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,14 +9,17 @@ import java.util.Objects;
 
 @Service
 public class ServicioService {
-    private IServicioRepositoty iRepositoty;
+    private final IServicioRepositoty iRepositoty;
+    private final FinanciamientoService financiamientoService;
 
-    public ServicioService(IServicioRepositoty iRepositoty) {
+    public ServicioService(IServicioRepositoty iRepositoty, FinanciamientoService financiamientoService) {
         this.iRepositoty = iRepositoty;
+        this.financiamientoService = financiamientoService;
     }
 
 
     public void agregarServicio(Servicio servicio){
+        servicio.setFuenteFinanciamiento(financiamientoService.getFuenteById(1L));
         iRepositoty.save(servicio);
     }
 

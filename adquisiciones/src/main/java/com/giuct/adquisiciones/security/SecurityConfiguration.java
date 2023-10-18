@@ -18,26 +18,24 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
+@RequiredArgsConstructor
 public class SecurityConfiguration {
 
+    @Autowired
+    private JwtAuthenticationConverter jwtAuthenticationConverter;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
+        return httpSecurity
                 .authorizeHttpRequests(registry -> registry
                         //.requestMatchers("/secured/**").hasRole("SYS_ADMIN") ROLE_
                         //.requestMatchers("/**").hasRole("SYS_ADMIN")
                         .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer(oauth2Configurer -> oauth2Configurer.jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(jwt -> {
-                    Map<String, Collection<String>> realmAccess = jwt.getClaim("resource_access");
-                    Map<String, Collection<String>> resourceAccess = (Map<String, Collection<String>>) realmAccess.get("spring-adquisiciones");
-                    Collection<String> roles = resourceAccess.get("roles");
-                    var grantedAuthorities = roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(Collectors.toList());
-                    return new JwtAuthenticationToken(jwt, grantedAuthorities);
-                })))
-        ;
+                .oauth2ResourceServer(oauth -> {
+                    oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter));
+                })
+                .build();
 
-        return httpSecurity.build();
     }
 }
 

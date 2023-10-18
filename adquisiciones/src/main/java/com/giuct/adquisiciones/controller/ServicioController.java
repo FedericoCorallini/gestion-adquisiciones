@@ -4,33 +4,23 @@ import com.giuct.adquisiciones.model.entity.Servicio;
 import com.giuct.adquisiciones.service.ServicioService;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-public class AdquisicionController {
+public class ServicioController {
 
     ServicioService servicioService;
 
-    public AdquisicionController(ServicioService servicioService) {
+    public ServicioController(ServicioService servicioService) {
         this.servicioService = servicioService;
     }
 
-    @RolesAllowed("SYS_USER")
     @GetMapping("/servicios")
     public ResponseEntity<List<Servicio>> getServiciosList(){
         return ResponseEntity.ok(servicioService.getServicios());
     }
-
-    /*
-    @GetMapping("/servicios/{id}")
-    public ResponseEntity<Optional<Servicio>> obtenerServiciosList(@PathVariable Long id){
-        Optional<Servicio> servicio = servicioService.obtenerServicioById(id);
-        return ResponseEntity.ok(servicio);
-    }
-    */
 
 
     @GetMapping("/servicios/{id}")
@@ -47,9 +37,9 @@ public class AdquisicionController {
     }
 
     @PostMapping("/servicios")
-    public ResponseEntity<String> crearAdquisicion(@RequestBody Servicio servicio){
+    public ResponseEntity<String> crearServicio(@RequestBody Servicio servicio){
         servicioService.agregarServicio(servicio);
-        return ResponseEntity.ok("Adquisicion creada");
+        return ResponseEntity.ok("Servicio creado");
     }
 
     @PutMapping("/servicios/{id}")
