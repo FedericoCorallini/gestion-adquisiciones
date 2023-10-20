@@ -2,7 +2,6 @@ package com.giuct.adquisiciones.controller;
 
 import com.giuct.adquisiciones.model.entity.Servicio;
 import com.giuct.adquisiciones.service.ServicioService;
-import jakarta.annotation.security.RolesAllowed;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,13 +16,13 @@ public class ServicioController {
         this.servicioService = servicioService;
     }
 
-    @RolesAllowed("SYS_ADMIN")
+
     @GetMapping("/servicios")
     public ResponseEntity<List<Servicio>> getServiciosList(){
         return ResponseEntity.ok(servicioService.getServicios());
     }
 
-    @RolesAllowed("SYS_USER")
+
     @GetMapping("/servicios/{id}")
     public ResponseEntity<Servicio> obtenerServiciosList(@PathVariable Long id){
         Servicio servicio = servicioService.getServicioById(id);

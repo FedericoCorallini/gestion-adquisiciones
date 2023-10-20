@@ -2,11 +2,8 @@ package com.giuct.adquisiciones.controller;
 
 import com.giuct.adquisiciones.model.entity.FuenteFinanciamiento;
 import com.giuct.adquisiciones.service.FinanciamientoService;
-import jakarta.annotation.security.RolesAllowed;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +19,6 @@ public class FuenteFinanciamientoController {
     }
 
     @GetMapping
-    @RolesAllowed("admin_client_role")
     public ResponseEntity<List<FuenteFinanciamiento>> obtenerFuentes(){
         return ResponseEntity.ok(financiamientoService.getFuentes());
     }
