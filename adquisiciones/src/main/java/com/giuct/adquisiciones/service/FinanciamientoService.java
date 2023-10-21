@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FinanciamientoService {
@@ -35,8 +36,8 @@ public class FinanciamientoService {
         return iFuenteRepository.findAll(PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
     }
 
-    public FuenteFinanciamiento getFuenteById(Long id){
-        return iFuenteRepository.getReferenceById(id);
+    public Optional<FuenteFinanciamiento> getFuenteById(Long id){
+        return iFuenteRepository.findById(id);
     }
 
     public void crear(FuenteFinanciamiento fuenteFinanciamiento) {
