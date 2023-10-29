@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("fuentes-financiamiento")
@@ -38,8 +39,8 @@ public class FuenteFinanciamientoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<String> obtenerFuente(@PathVariable Long id){
-        return ResponseEntity.ok(financiamientoService.getFuenteById(id).toString());
+    public ResponseEntity<Optional<FuenteFinanciamiento>> obtenerFuente(@PathVariable Long id){
+        return ResponseEntity.ok(financiamientoService.getFuenteById(id));
     }
 
     @PostMapping
