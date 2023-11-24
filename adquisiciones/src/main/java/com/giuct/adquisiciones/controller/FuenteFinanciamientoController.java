@@ -39,7 +39,7 @@ public class FuenteFinanciamientoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<FuenteFinanciamiento>> obtenerFuente(@PathVariable Long id){
+    public ResponseEntity<FuenteFinanciamiento> getFuente(@PathVariable Long id){
         return ResponseEntity.ok(financiamientoService.getFuenteById(id));
     }
 

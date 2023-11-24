@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDate;
 import java.util.Date;
 @Data
 @Entity
@@ -13,7 +14,7 @@ public class Equipamiento extends Adquisicion{
     @Column(name = "denominacion")
     private String denominacion;
     @Column(name = "fecha_incorporacion")
-    private Date fechaIncorporacion;
+    private LocalDate fechaIncorporacion;
 
 
 }

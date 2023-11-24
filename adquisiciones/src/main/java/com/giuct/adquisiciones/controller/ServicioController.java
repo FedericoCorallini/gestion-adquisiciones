@@ -71,17 +71,17 @@ public class ServicioController {
         return ResponseEntity.ok(servicio);
     }
 
-    @PostMapping
-    public ResponseEntity<String> crearServicio(@RequestBody Servicio servicio){
-        servicioService.agregarServicio(servicio);
+    @PostMapping("/{idFinanciameinto}")
+    public ResponseEntity<String> crearServicio(@RequestBody Servicio servicio, @PathVariable Long idFinanciamiento){
+        servicioService.agregarServicio(servicio, idFinanciamiento);
         return ResponseEntity.ok("Servicio creado");
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> modificarServicio(@RequestBody Servicio servicio, @PathVariable Long id){
+    @PutMapping("/{idFinanciamiento}/{id}")
+    public ResponseEntity<?> modificarServicio(@RequestBody Servicio servicio, @PathVariable Long idFinanciamiento, @PathVariable Long id){
         try{
             Servicio servicio1 = servicioService.getServicioById(id);
-            servicioService.agregarServicio(servicio);
+            servicioService.agregarServicio(servicio, idFinanciamiento);
             return ResponseEntity.ok("Servicio modificado");
         }
         catch (Exception exception){

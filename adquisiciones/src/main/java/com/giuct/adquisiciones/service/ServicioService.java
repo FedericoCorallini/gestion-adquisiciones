@@ -2,95 +2,74 @@ package com.giuct.adquisiciones.service;
 
 import com.giuct.adquisiciones.model.entity.FuenteFinanciamiento;
 import com.giuct.adquisiciones.model.entity.Servicio;
-import com.giuct.adquisiciones.repository.IServicioRepositoty;
+import com.giuct.adquisiciones.repository.IServicioRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class ServicioService {
-    private final IServicioRepositoty iRepositoty;
+    private final IServicioRepository servicioRepository;
     private final FinanciamientoService financiamientoService;
 
-    public ServicioService(IServicioRepositoty iRepositoty, FinanciamientoService financiamientoService) {
-        this.iRepositoty = iRepositoty;
+    public ServicioService(IServicioRepository servicioRepository, FinanciamientoService financiamientoService) {
+        this.servicioRepository = servicioRepository;
         this.financiamientoService = financiamientoService;
     }
 
-
-    public void agregarServicio(Servicio servicio){
-        Optional<FuenteFinanciamiento> fuenteFinanciamiento = financiamientoService.getFuenteById(1L);
-        if(fuenteFinanciamiento.isPresent()){
-            servicio.setFuenteFinanciamiento(fuenteFinanciamiento.get());
-        }
-        iRepositoty.save(servicio);
+    public void agregarServicio(Servicio servicio, Long id){
+        FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(id);
+        servicio.setFuenteFinanciamiento(fuenteFinanciamiento);
+        this.servicioRepository.save(servicio);
     }
 
     public void eliminarServicio(Long id){
-        iRepositoty.deleteById(id);
+        servicioRepository.deleteById(id);
     }
 
     public List<Servicio> getServicios(){
-        return iRepositoty.findAll();
+        return servicioRepository.findAll();
     }
 
     public Servicio getServicioById(Long id){
-        final Servicio servicio = iRepositoty.findById(id).get();
-        //final Servicio servicio = iRepositoty.getReferenceById(id);
+        final Servicio servicio = servicioRepository.findById(id).get();
         return servicio;
     }
     public List<Servicio> getServiciosOrdenados(String criterio) {
-        return iRepositoty.findAll(Sort.by(criterio).descending());
+        return servicioRepository.findAll(Sort.by(criterio).descending());
     }
 
     public Page<Servicio> getServiciosPaginados(Integer nroPagina, Integer nroElementos) {
-        return iRepositoty.findAll(PageRequest.of(nroPagina, nroElementos));
+        return servicioRepository.findAll(PageRequest.of(nroPagina, nroElementos));
     }
 
     public Page<Servicio> getServiciosPaginadosOrdenados(Integer nroPagina, Integer nroElementos, String criterio) {
-        return iRepositoty.findAll(PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
+        return servicioRepository.findAll(PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
     }
 
     public List<Servicio> getServiciosByFinanciamiento(Long id){
-        Optional<FuenteFinanciamiento> fuenteFinanciamiento = financiamientoService.getFuenteById(id);
-        if(fuenteFinanciamiento.isPresent()){
-            List<Servicio> servicios = iRepositoty.findByFuenteFinanciamiento(fuenteFinanciamiento.get());
-            return servicios;
-        }
-        return new ArrayList<>();
+        FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(id);
+        return servicioRepository.findByFuenteFinanciamiento(fuenteFinanciamiento);
     }
 
     public List<Servicio> getServiciosByFinanciamientoOrdenado(Long idFinanciamiento, String criterio) {
-        Optional<FuenteFinanciamiento> fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
-        if(fuenteFinanciamiento.isPresent()){
-            List<Servicio> servicios = iRepositoty.findByFuenteFinanciamiento(fuenteFinanciamiento.get(), Sort.by(criterio));
-            return servicios;
-        };
-        return null;
+        FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
+        return servicioRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, Sort.by(criterio));
+
     }
 
     public Page<Servicio> getServiciosByFinanciamientoPaginado(Long idFinanciamiento, Integer nroPagina, Integer nroElementos) {
+        FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
+        return servicioRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina,nroElementos));
 
-        Optional<FuenteFinanciamiento> fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
-        if(fuenteFinanciamiento.isPresent()){
-            return iRepositoty.findByFuenteFinanciamiento(fuenteFinanciamiento.get(), PageRequest.of(nroPagina,nroElementos));
-        };
-        return null;
     }
 
     public Page<Servicio> getServiciosByFinanciamientoPaginadoOrdenado(Long idFinanciamiento, Integer nroPagina, Integer nroElementos, String criterio) {
-        Optional<FuenteFinanciamiento> fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
-        if(fuenteFinanciamiento.isPresent()){
-            Page<Servicio> servicios = iRepositoty.findByFuenteFinanciamiento(fuenteFinanciamiento.get(), PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
-           return servicios;
-        };
-        return null;
+        FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
+        return servicioRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
+
     }
 }

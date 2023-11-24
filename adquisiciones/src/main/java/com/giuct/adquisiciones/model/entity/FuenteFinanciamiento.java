@@ -3,6 +3,7 @@ package com.giuct.adquisiciones.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,7 +16,7 @@ public class FuenteFinanciamiento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "fecha_acreditacion")
-    private LocalDateTime fechaAcreditacion;
+    private LocalDate fechaAcreditacion;
     @Column(name = "monto")
     private float monto;
     @Column(name = "motivo")
