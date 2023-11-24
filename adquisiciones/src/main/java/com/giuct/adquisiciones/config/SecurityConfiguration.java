@@ -1,4 +1,4 @@
-package com.giuct.adquisiciones.security;
+package com.giuct.adquisiciones.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
