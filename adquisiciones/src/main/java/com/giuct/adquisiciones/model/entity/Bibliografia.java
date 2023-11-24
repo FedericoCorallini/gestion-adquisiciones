@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDate;
 import java.util.Date;
 @Data
 @Entity
@@ -12,7 +13,7 @@ import java.util.Date;
 public class Bibliografia extends Adquisicion{
 
     @Column(name = "anio_publicacion")
-    private Date anioPublicacion;
+    private LocalDate anioPublicacion;
     @Column(name = "apellido_autor")
     private String apellidoAutor;
     @Column(name = "editorial")

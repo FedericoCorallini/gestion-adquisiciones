@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDate;
 import java.util.Date;
 @Data
 @Entity
@@ -12,13 +13,13 @@ import java.util.Date;
 public class Licencia extends Adquisicion{
 
     @Column(name = "anio")
-    private Date anio;
+    private LocalDate anio;
     @Column(name = "fabricante")
     private String fabricante;
     @Column(name = "fecha_otorgamiento")
-    private Date fechaOtorgamiento;
+    private LocalDate fechaOtorgamiento;
     @Column(name = "fecha_vencimiento")
-    private Date fechaVencimiento;
+    private LocalDate fechaVencimiento;
     @Column(name = "nombre")
     private String nombre;
     @Column(name = "numero_release")
