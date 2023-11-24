@@ -21,8 +21,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    @Autowired
-    private JwtAuthenticationConverter jwtAuthenticationConverter;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
@@ -31,9 +29,6 @@ public class SecurityConfiguration {
                         //.requestMatchers("/**").hasRole("SYS_ADMIN")
                         .anyRequest().authenticated()
                 )
-//                .oauth2ResourceServer(oauth -> {
-//                    oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter));
-//                })
                 .oauth2ResourceServer(oauth2Configurer -> oauth2Configurer.jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(jwt -> {
                     Map<String, Collection<String>> realmAccess = jwt.getClaim("realm_access");
                     Map<String, Collection<String>> resourceAccess = jwt.getClaim("resource_access");
@@ -44,7 +39,6 @@ public class SecurityConfiguration {
                     return new JwtAuthenticationToken(jwt, grantedAuthorities);
                 })))
                 .build();
-
     }
 }
 
