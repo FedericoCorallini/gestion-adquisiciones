@@ -1,16 +1,14 @@
 package com.giuct.adquisiciones.service;
 
 import com.giuct.adquisiciones.exceptions.InvalidAdquisicionException;
-import com.giuct.adquisiciones.model.dto.PaginacionOrdenamientoDTO;
 import com.giuct.adquisiciones.model.entity.Equipamiento;
 import com.giuct.adquisiciones.model.entity.FuenteFinanciamiento;
 import com.giuct.adquisiciones.repository.IEquipamientoRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,27 +22,11 @@ public class EquipamientoService {
         this.financiamientoService = financiamientoService;
     }
 
-    public List<Equipamiento> getEquipamientos(PaginacionOrdenamientoDTO paginacionOrdenamientoDTO) {
-        final String criterio = paginacionOrdenamientoDTO.getCriterio();
-        final Integer nroElementos = paginacionOrdenamientoDTO.getNroElementos();
-        final Integer nroPagina = paginacionOrdenamientoDTO.getNroPagina();
-
-        if(criterio != null){
-            if(nroElementos != null & nroPagina != null){
-                return (List<Equipamiento>) equipamientoRepository.findAll(PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
-            }
-            else{
-                return equipamientoRepository.findAll(Sort.by(criterio));
-            }
+    public Page<Equipamiento> getEquipamientos(Integer nroPagina, Integer nroElementos, String criterio) {
+        if(nroElementos==0){
+            nroElementos = Integer.MAX_VALUE;
         }
-        else{
-            if(nroElementos != null & nroPagina != null){
-                return (List<Equipamiento>) equipamientoRepository.findAll(PageRequest.of(nroPagina, nroElementos));
-            }
-            else{
-                return equipamientoRepository.findAll();
-            }
-        }
+        return equipamientoRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
     }
 
     public Equipamiento getEquipamientoById(Long id) {
@@ -55,9 +37,12 @@ public class EquipamientoService {
         throw new InvalidAdquisicionException("El equipamiento solicitado no existe");
     }
 
-    public List<Equipamiento> getEquipamientosByFinanciamiento(Long idFinanciamiento) {
+    public Page<Equipamiento> getEquipamientosByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
-        return equipamientoRepository.findByFunteFinanciamiento(fuenteFinanciamiento);
+        if(nroElementos==0){
+            nroElementos = Integer.MAX_VALUE;
+        }
+        return equipamientoRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
     }
 
     public void agregarEquipamiento(Equipamiento equipamiento, Long idFinanciamiento) {

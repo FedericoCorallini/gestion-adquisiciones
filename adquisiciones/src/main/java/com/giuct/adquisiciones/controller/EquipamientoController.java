@@ -1,12 +1,12 @@
 package com.giuct.adquisiciones.controller;
 
-import com.giuct.adquisiciones.model.dto.PaginacionOrdenamientoDTO;
 import com.giuct.adquisiciones.model.entity.Equipamiento;
 import com.giuct.adquisiciones.service.EquipamientoService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+
 
 @RestController
 @RequestMapping("equipamientos")
@@ -17,20 +17,26 @@ public class EquipamientoController {
         this.equipamientoService = equipamientoService;
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<Equipamiento> getEquipamiento(@PathVariable Long id){
         return ResponseEntity.ok(equipamientoService.getEquipamientoById(id));
     }
 
     @GetMapping()
-    public ResponseEntity<List<Equipamiento>> getEquipamientosList(@RequestBody PaginacionOrdenamientoDTO paginacionOrdenamientoDTO){
-        return ResponseEntity.ok(equipamientoService.getEquipamientos(paginacionOrdenamientoDTO));
+    public ResponseEntity<Page<Equipamiento>> getEquipamientos(
+            @RequestParam(name = "ordenar", required = false, defaultValue = "id") String criterio,
+            @RequestParam(name="pagina", required = false, defaultValue = "0") Integer nroPagina,
+            @RequestParam(name="elementos", required = false, defaultValue = "0") Integer nroElementos){
+        return ResponseEntity.ok(equipamientoService.getEquipamientos(nroPagina, nroElementos, criterio));
     }
 
     @GetMapping("/financiamiento/{idFinanciamiento}")
-    public ResponseEntity<List<Equipamiento>> getEquipamientosByFinanciamiento(@PathVariable Long idFinanciamiento){
-        return ResponseEntity.ok(equipamientoService.getEquipamientosByFinanciamiento(idFinanciamiento));
+    public ResponseEntity<Page<Equipamiento>> getEquipamientosByFinanciamiento(
+            @PathVariable Long idFinanciamiento,
+            @RequestParam(name = "ordenar", required = false, defaultValue = "id") String criterio,
+            @RequestParam(name="pagina", required = false, defaultValue = "0") Integer nroPagina,
+            @RequestParam(name="elementos", required = false, defaultValue = "0") Integer nroElementos){
+        return ResponseEntity.ok(equipamientoService.getEquipamientosByFinanciamiento(idFinanciamiento, criterio, nroPagina, nroElementos));
     }
 
     @PostMapping("/{idFinanciamiento}")
@@ -51,40 +57,4 @@ public class EquipamientoController {
         return ResponseEntity.ok("Servicio eliminado");
     }
 
-
-
-
-//    @GetMapping("/ordenar/{criterio}")
-//    public  ResponseEntity<List<Equipamiento>> obtenerServiciosOrdenados(@PathVariable String criterio){
-//        return ResponseEntity.ok(servicioService.getServiciosOrdenados(criterio));
-//    }
-//
-//    @GetMapping("/paginar/{nroPagina}/{nroElementos}")
-//    public ResponseEntity<Page<Servicio>> obtenerServiciosPaginados(@PathVariable Integer nroPagina, @PathVariable Integer nroElementos){
-//        return ResponseEntity.ok(servicioService.getServiciosPaginados(nroPagina, nroElementos));
-//    }
-//
-//    @GetMapping("/paginar/{nroPagina}/{nroElementos}/{criterio}")
-//    public ResponseEntity<Page<Servicio>> obtenerServiciosPaginadosOrdenados(@PathVariable Integer nroPagina, @PathVariable Integer nroElementos, @PathVariable String criterio){
-//        return ResponseEntity.ok(servicioService.getServiciosPaginadosOrdenados(nroPagina, nroElementos, criterio));
-//    }
-//
-//
-//    @GetMapping("/financiamiento/{idFinanciamiento}/ordenar/{criterio}")
-//    public ResponseEntity<List<Servicio>> getServiciosPorFinanciamientoOrdenado(@PathVariable Long idFinanciamiento, @PathVariable String criterio){
-//        List<Servicio> servicio = servicioService.getServiciosByFinanciamientoOrdenado(idFinanciamiento, criterio);
-//        return ResponseEntity.ok(servicio);
-//    }
-//
-//    @GetMapping("/financiamiento/{idFinanciamiento}/paginar/{nroPagina}/{nroElementos}")
-//    public ResponseEntity<Page<Servicio>> getServiciosPorFinanciamientoPaginado(@PathVariable Long idFinanciamiento, @PathVariable Integer nroPagina, @PathVariable Integer nroElementos){
-//        Page<Servicio> servicio = servicioService.getServiciosByFinanciamientoPaginado(idFinanciamiento, nroPagina, nroElementos);
-//        return ResponseEntity.ok(servicio);
-//    }
-//
-//    @GetMapping("/financiamiento/{idFinanciamiento}/paginar/{nroPagina}/{nroElementos}/{criterio}")
-//    public ResponseEntity<Page<Servicio>> getServiciosPorFinanciamientoOrdenadoPaginado(@PathVariable Long idFinanciamiento, @PathVariable Integer nroPagina, @PathVariable Integer nroElementos, @PathVariable String criterio){
-//        Page<Servicio> servicio = servicioService.getServiciosByFinanciamientoPaginadoOrdenado(idFinanciamiento, nroPagina, nroElementos, criterio);
-//        return ResponseEntity.ok(servicio);
-//    }
 }
