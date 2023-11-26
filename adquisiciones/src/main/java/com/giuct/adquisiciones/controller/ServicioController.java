@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("servicios")
 public class ServicioController {
 
@@ -40,7 +41,7 @@ public class ServicioController {
         return ResponseEntity.ok(servicioService.getServiciosByFinanciamiento(idFinanciamiento, criterio, nroPagina, nroElementos));
     }
 
-    @PostMapping("/{idFinanciameinto}")
+    @PostMapping("/{idFinanciamiento}")
     public ResponseEntity<String> crearServicio(@RequestBody Servicio servicio, @PathVariable Long idFinanciamiento){
         servicioService.agregarServicio(servicio, idFinanciamiento);
         return ResponseEntity.ok("Servicio creado");
