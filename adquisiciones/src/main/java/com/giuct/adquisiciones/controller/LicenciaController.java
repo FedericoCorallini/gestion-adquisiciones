@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("licencias")
+@CrossOrigin(origins = "http://localhost:3000")
 public class LicenciaController {
     public final LicenciaService licenciaService;
 

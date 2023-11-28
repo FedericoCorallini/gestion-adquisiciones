@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("bibliografias")
+@CrossOrigin(origins = "http://localhost:3000")
 public class BibliografiaController {
     public final BibliografiaService bibliografiaService;
 
