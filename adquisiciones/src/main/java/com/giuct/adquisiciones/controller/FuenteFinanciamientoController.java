@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("fuentes-financiamiento")
+@CrossOrigin
 public class FuenteFinanciamientoController {
 
     FinanciamientoService financiamientoService;

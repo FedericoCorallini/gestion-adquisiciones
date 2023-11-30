@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin
 @RequestMapping("bibliografias")
 public class BibliografiaController {
     public final BibliografiaService bibliografiaService;

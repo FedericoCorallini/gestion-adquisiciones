@@ -25,8 +25,9 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(registry -> registry
                         //.requestMatchers("/secured/**").hasRole("SYS_ADMIN")
                         //.requestMatchers("/**").hasRole("SYS_ADMIN")
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
+
                 .oauth2ResourceServer(oauth2Configurer -> oauth2Configurer.jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(jwt -> {
                     Map<String, Collection<String>> realmAccess = jwt.getClaim("realm_access");
                     Map<String, Collection<String>> resourceAccess = jwt.getClaim("resource_access");
@@ -36,6 +37,7 @@ public class SecurityConfiguration {
                     var grantedAuthorities = roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(Collectors.toList());
                     return new JwtAuthenticationToken(jwt, grantedAuthorities);
                 })))
+
                 .build();
     }
 }
