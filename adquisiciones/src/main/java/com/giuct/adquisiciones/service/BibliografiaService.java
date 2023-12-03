@@ -2,9 +2,13 @@ package com.giuct.adquisiciones.service;
 
 
 import com.giuct.adquisiciones.exceptions.InvalidAdquisicionException;
+import com.giuct.adquisiciones.factory.BibliografiaFactory;
+import com.giuct.adquisiciones.model.dto.AdquisicionDTO;
+import com.giuct.adquisiciones.model.entity.Adquisicion;
 import com.giuct.adquisiciones.model.entity.Bibliografia;
 import com.giuct.adquisiciones.model.entity.FuenteFinanciamiento;
 import com.giuct.adquisiciones.repository.IBibliografiaRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -12,17 +16,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Service
-public class BibliografiaService {
+@Service("bibliografias")
+@AllArgsConstructor
+public class BibliografiaService extends AdquisicionService{
     private final IBibliografiaRepository bibliografiaRepository;
     private final FinanciamientoService financiamientoService;
+    private final BibliografiaFactory bibliografiaFactory;
 
-    public BibliografiaService(IBibliografiaRepository bibliografiaRepository, FinanciamientoService financiamientoService) {
-        this.bibliografiaRepository = bibliografiaRepository;
-        this.financiamientoService = financiamientoService;
-    }
-
-    public Bibliografia getBibliografiaById(Long id) {
+    @Override
+    public Adquisicion getAdquisicionById(Long id) {
         Optional<Bibliografia> bibliografiaOptional = bibliografiaRepository.findById(id);
         if(bibliografiaOptional.isPresent()){
             return bibliografiaOptional.get();
@@ -30,14 +32,17 @@ public class BibliografiaService {
         throw new InvalidAdquisicionException("La bibliografia solicitada no existe");
     }
 
-    public Page<Bibliografia> getBibliografias(Integer nroPagina, Integer nroElementos, String criterio) {
+
+    @Override
+    public Page<? extends Adquisicion> getAdquisicion(Integer nroPagina, Integer nroElementos, String criterio) {
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
         return bibliografiaRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
     }
 
-    public Page<Bibliografia> getBibliografiasByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
+    @Override
+    public Page<? extends Adquisicion> getAdquisicionesByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
@@ -45,27 +50,29 @@ public class BibliografiaService {
         return bibliografiaRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
     }
 
-    public void agregarBibliografia(Bibliografia bibliografia, Long idFinanciamiento) {
+    @Override
+    public void agregarAdquisicion(AdquisicionDTO adquisicionDTO, Long idFinanciamiento) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
-        bibliografia.setFuenteFinanciamiento(fuenteFinanciamiento);
-        bibliografiaRepository.save(bibliografia);
+        Bibliografia b = bibliografiaFactory.crear(adquisicionDTO, fuenteFinanciamiento);
+        bibliografiaRepository.save(b);
     }
 
-    public void modificarBibliografia(Long id, Bibliografia bibliografia) {
+    @Override
+    public void modificarAdquisicion(Long id, AdquisicionDTO adquisicionDTO) {
         Optional<Bibliografia> bibliografiaOptional = bibliografiaRepository.findById(id);
         if(bibliografiaOptional.isPresent()){
             Bibliografia b = bibliografiaOptional.get();
-            b.setAnioPublicacion(bibliografia.getAnioPublicacion());
-            b.setIssn(bibliografia.getIssn());
-            b.setIsbn(bibliografia.getIsbn());
-            b.setTipo(bibliografia.getTipo());
-            b.setEditorial(bibliografia.getEditorial());
-            b.setApellidoAutor(bibliografia.getApellidoAutor());
-            b.setNombreAutor(bibliografia.getNombreAutor());
-            b.setUrl(bibliografia.getUrl());
-            b.setTitulo(bibliografia.getTitulo());
-            b.setCosto(bibliografia.getCosto());
-            b.setDescripcion(bibliografia.getDescripcion());
+            b.setAnioPublicacion(adquisicionDTO.getAnioPublicacion());
+            b.setIssn(adquisicionDTO.getIssn());
+            b.setIsbn(adquisicionDTO.getIsbn());
+            b.setTipo(adquisicionDTO.getTipo());
+            b.setEditorial(adquisicionDTO.getEditorial());
+            b.setApellidoAutor(adquisicionDTO.getApellidoAutor());
+            b.setNombreAutor(adquisicionDTO.getNombreAutor());
+            b.setUrl(adquisicionDTO.getUrl());
+            b.setTitulo(adquisicionDTO.getTitulo());
+            b.setCosto(adquisicionDTO.getCosto());
+            b.setDescripcion(adquisicionDTO.getDescripcion());
             bibliografiaRepository.save(b);
         }
         else{
@@ -73,7 +80,10 @@ public class BibliografiaService {
         }
     }
 
-    public void eliminarBibliografia(Long id) {
+    @Override
+    public void eliminarAdquisicion(Long id) {
         this.bibliografiaRepository.deleteById(id);
     }
+
+
 }

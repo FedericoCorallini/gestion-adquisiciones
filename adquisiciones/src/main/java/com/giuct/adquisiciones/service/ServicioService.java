@@ -1,9 +1,14 @@
 package com.giuct.adquisiciones.service;
 
 import com.giuct.adquisiciones.exceptions.InvalidAdquisicionException;
+import com.giuct.adquisiciones.factory.ServiceFactory;
+import com.giuct.adquisiciones.model.dto.AdquisicionDTO;
+import com.giuct.adquisiciones.model.entity.Adquisicion;
+import com.giuct.adquisiciones.model.entity.Bibliografia;
 import com.giuct.adquisiciones.model.entity.FuenteFinanciamiento;
 import com.giuct.adquisiciones.model.entity.Servicio;
 import com.giuct.adquisiciones.repository.IServicioRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -11,17 +16,25 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Service
-public class ServicioService {
+@Service("servicios")
+@AllArgsConstructor
+public class ServicioService extends AdquisicionService{
+
     private final IServicioRepository servicioRepository;
     private final FinanciamientoService financiamientoService;
+    private final ServiceFactory serviceFactory;
 
-    public ServicioService(IServicioRepository servicioRepository, FinanciamientoService financiamientoService) {
-        this.servicioRepository = servicioRepository;
-        this.financiamientoService = financiamientoService;
+    @Override
+    public Page<? extends Adquisicion> getAdquisicionesByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
+        FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
+        if(nroElementos==0){
+            nroElementos = Integer.MAX_VALUE;
+        }
+        return servicioRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
     }
 
-    public Servicio getServicioById(Long id){
+    @Override
+    public Adquisicion getAdquisicionById(Long id) {
         Optional<Servicio> servicioOptional = servicioRepository.findById(id);
         if(servicioOptional.isPresent()){
             return servicioOptional.get();
@@ -29,33 +42,29 @@ public class ServicioService {
         throw new InvalidAdquisicionException("El servicio solicitado no existe");
     }
 
-    public Page<Servicio> getServicios(Integer nroPagina, Integer nroElementos, String criterio) {
+    @Override
+    public Page<? extends Adquisicion> getAdquisicion(Integer nroPagina, Integer nroElementos, String criterio) {
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
         return servicioRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
     }
 
-    public Page<Servicio> getServiciosByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
+    @Override
+    public void agregarAdquisicion(AdquisicionDTO adquisicionDTO, Long idFinanciamiento) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
-        if(nroElementos==0){
-            nroElementos = Integer.MAX_VALUE;
-        }
-        return servicioRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
-    }
-    public void agregarServicio(Servicio servicio, Long id){
-        FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(id);
-        servicio.setFuenteFinanciamiento(fuenteFinanciamiento);
-        this.servicioRepository.save(servicio);
+        Servicio s = serviceFactory.crear(adquisicionDTO, fuenteFinanciamiento);
+        this.servicioRepository.save(s);
     }
 
-    public void modificarServicio(Long id, Servicio servicio) {
+    @Override
+    public void modificarAdquisicion(Long id, AdquisicionDTO adquisicionDTO) {
         Optional<Servicio> servicioOptional = servicioRepository.findById(id);
         if(servicioOptional.isPresent()){
             Servicio s = servicioOptional.get();
-            s.setTipo(servicio.getTipo());
-            s.setCosto(servicio.getCosto());
-            s.setDescripcion(servicio.getDescripcion());
+            s.setTipo(adquisicionDTO.getTipo());
+            s.setCosto(adquisicionDTO.getCosto());
+            s.setDescripcion(adquisicionDTO.getDescripcion());
             servicioRepository.save(s);
         }
         else{
@@ -63,7 +72,8 @@ public class ServicioService {
         }
     }
 
-    public void eliminarServicio(Long id){
+    @Override
+    public void eliminarAdquisicion(Long id) {
         servicioRepository.deleteById(id);
     }
 }
