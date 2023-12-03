@@ -7,6 +7,7 @@ import com.giuct.adquisiciones.model.entity.Adquisicion;
 import com.giuct.adquisiciones.model.entity.Bibliografia;
 import com.giuct.adquisiciones.model.entity.FuenteFinanciamiento;
 import com.giuct.adquisiciones.model.entity.Servicio;
+import com.giuct.adquisiciones.repository.IFuenteRepository;
 import com.giuct.adquisiciones.repository.IServicioRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ public class ServicioService extends AdquisicionService{
     private final IServicioRepository servicioRepository;
     private final FinanciamientoService financiamientoService;
     private final ServiceFactory serviceFactory;
+    private final IFuenteRepository fuenteRepository;
 
     @Override
     public Page<? extends Adquisicion> getAdquisicionesByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
@@ -54,6 +56,11 @@ public class ServicioService extends AdquisicionService{
     public void agregarAdquisicion(AdquisicionDTO adquisicionDTO, Long idFinanciamiento) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
         Servicio s = serviceFactory.crear(adquisicionDTO, fuenteFinanciamiento);
+        fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto()-s.getCosto());
+        if (fuenteFinanciamiento.getMonto() < 0){
+            throw new InvalidAdquisicionException("Fondos insuficientes");
+        }
+        this.fuenteRepository.save(fuenteFinanciamiento);
         this.servicioRepository.save(s);
     }
 
@@ -62,10 +69,18 @@ public class ServicioService extends AdquisicionService{
         Optional<Servicio> servicioOptional = servicioRepository.findById(id);
         if(servicioOptional.isPresent()){
             Servicio s = servicioOptional.get();
+            FuenteFinanciamiento fuenteFinanciamiento = s.getFuenteFinanciamiento();
+
+            fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto()+s.getCosto()-adquisicionDTO.getCosto());
+            if (fuenteFinanciamiento.getMonto() < 0){
+                throw new InvalidAdquisicionException("Fondos insuficientes");
+            }
+
             s.setTipo(adquisicionDTO.getTipo());
             s.setCosto(adquisicionDTO.getCosto());
             s.setDescripcion(adquisicionDTO.getDescripcion());
-            servicioRepository.save(s);
+            this.fuenteRepository.save(fuenteFinanciamiento);
+            this.servicioRepository.save(s);
         }
         else{
             throw new InvalidAdquisicionException("La bibliografia que desea modificar no existe");

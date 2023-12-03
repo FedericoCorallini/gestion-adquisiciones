@@ -6,9 +6,13 @@ import com.giuct.adquisiciones.repository.IFuenteRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -28,11 +32,24 @@ public class FinanciamientoService {
         throw new InvalidFuenteFinanciamientoException("La fuente de financiamiento no existe");
     }
 
-    public Page<FuenteFinanciamiento> getFuentes(Integer nroPagina, Integer nroElementos, String criterio) {
+    public Page<FuenteFinanciamiento> getFuentes(Jwt jwt, Integer nroPagina, Integer nroElementos, String criterio) {
+        Map<String, Collection<String>> realmAccess = jwt.getClaim("realm_access");
+        Collection<String> roles = realmAccess.get("roles");
+        boolean director = roles.contains("Director");
+        boolean investigador = roles.contains("Investigador");
+
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
-        return fuenteRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+        if(director){
+            return fuenteRepository.findByMotivo("UCT", PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+
+        } else if (investigador) {
+            return fuenteRepository.findByMotivo("PID", PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+        }
+        else{
+            return fuenteRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+        }
     }
 
     public void crear(FuenteFinanciamiento fuenteFinanciamiento) {
