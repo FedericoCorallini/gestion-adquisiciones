@@ -42,14 +42,22 @@ public class FinanciamientoService {
             nroElementos = Integer.MAX_VALUE;
         }
         if(director){
-            return fuenteRepository.findByMotivo("UCT", PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+            return fuenteRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
 
         } else if (investigador) {
             return fuenteRepository.findByMotivo("PID", PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
         }
         else{
-            return fuenteRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+            throw new InvalidFuenteFinanciamientoException("No esta permitido este rol");
         }
+    }
+    public Page<FuenteFinanciamiento> getFuentes(Integer nroPagina, Integer nroElementos, String criterio) {
+
+        if(nroElementos==0){
+            nroElementos = Integer.MAX_VALUE;
+        }
+
+        return fuenteRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
     }
 
     public void crear(FuenteFinanciamiento fuenteFinanciamiento) {
