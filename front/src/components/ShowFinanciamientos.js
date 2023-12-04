@@ -1,4 +1,4 @@
-import React,{useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -7,31 +7,27 @@ import { show_alerta } from '../functions';
 import { MDBTable, MDBTableHead, MDBTableBody } from 'mdb-react-ui-kit';
 import { MDBDataTable } from 'mdbreact'; 
 import { keycloak } from '../keycloak';
+import { apiGetFinancimientos } from '../axios/axios';
+import { useToken } from '../hooks/TokenProvider';
 
 
 const ShowFinanciamientos = () => {
-    const urlFinanciamientos='http://localhost:8080/fuentes-financiamiento';
-    const [financiamientos, setFinanciamientos]= useState([]);
+    const [financiamientos, setFinanciamientos] = useState([]);
+    const { token, updateToken } = useToken();
     const [id, setId]= useState('');
     const financiamientosList = financiamientos.content || [];
     const rowsWithRowNumber = financiamientosList.map((row, index) => ({ ...row, rowNumber: index + 1 }));
 
-    useEffect( ()=>{
+    useEffect(() => {
+        console.log(token);
+        // apiGetFinancimientos(token).then((response) => {
+        //     setFinanciamientos(response.data);
+        // });
         getFinanciamientos();
     },[]);
   
     const getFinanciamientos = async () => {
-        const token = keycloak.token;
-        const respuesta = await axios.get(urlFinanciamientos,
-            // {
-            //     withCredentials: true,
-            //     mode: 'cors',
-            //     headers: {
-            //       'Authorization': `Bearer ${token}`,
-            //       'Acces-Control-Allow-Origin':'*'
-            //     },
-            // }
-            );
+        const respuesta = await apiGetFinancimientos(keycloak.token);
         setFinanciamientos(respuesta.data);
     }
 
@@ -110,4 +106,4 @@ const ShowFinanciamientos = () => {
   )
 }
 
-export default ShowFinanciamientos
+export default ShowFinanciamientos;

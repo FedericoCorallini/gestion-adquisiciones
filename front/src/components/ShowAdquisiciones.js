@@ -1,20 +1,22 @@
 import React,{useEffect, useState} from 'react';
-import axios from 'axios';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { show_alerta } from '../functions';
 import { useParams } from 'react-router-dom';
-import { MDBTable, MDBTableHead, MDBTableBody, MDBTabs, MDBTabsItem, MDBTabsLink} from 'mdb-react-ui-kit';
+import { MDBTabs, MDBTabsItem, MDBTabsLink} from 'mdb-react-ui-kit';
 import { Link } from 'react-router-dom';
 import { MDBDataTable } from 'mdbreact'; 
-import ShowEquipamientos from './ShowEquipamientos';
+import { apiDeleteAdquisicion, apiGetAdquisiciones, apiGetFinanciamiento, apiPostAdquisicion } from '../axios/axios';
 
 const ShowAdquisiciones = () => {
+    const [effect, setEffect] = useState(false);
     const {idFinanciamiento, motivoFinanciamiento, montoFinanciamiento} = useParams();
+    // const [monto, setMontoFinanciamiento] = useState(montoFinanciamiento);
     const [selectedOption, setSelectedOption] = useState('servicios');
-    const urlAdquisiciones=`http://localhost:8080/${selectedOption}/financiamiento/${idFinanciamiento}`;
-    const url=`http://localhost:8080/${selectedOption}`
+    const urlAdquisiciones = `http://localhost:8080/${selectedOption}/financiamiento/${idFinanciamiento}`;
+    const url = `http://localhost:8080/${selectedOption}`
     const [adquisiciones, setAdquisiciones]= useState([]);
+    const [financiamiento, setFinanciamiento]= useState({});
     const [id, setId]= useState('');
     const [descripcion, setDescripcion]= useState('');
     const [tipo, setTipo]= useState('');
@@ -49,14 +51,21 @@ const ShowAdquisiciones = () => {
     };
 
 
-    useEffect( ()=>{
+    useEffect(() => {
         getAdquisiciones();
-    },[selectedOption]);
+        getFinanciamiento();
+        setEffect(false);
+    }, [selectedOption, effect]);
 
 
     const getAdquisiciones = async () => {
-        const respuesta = await axios.get(urlAdquisiciones);
+        const respuesta = await apiGetAdquisiciones(urlAdquisiciones);
         setAdquisiciones(respuesta.data);  
+    }
+
+    const getFinanciamiento = async () => {
+        const respuesta = await apiGetFinanciamiento('http://localhost:8080/fuentes-financiamiento/' + idFinanciamiento);
+        setFinanciamiento(respuesta.data);  
     }
 
     const openModal = (op, id, tipo, descripcion, costo, denominacion, nombreAutor, apellidoAutor, editorial, issn, isbn, titulo, urlBiliografia, numeroRelease, version, fabricante, nombre, selectedOption) =>{
@@ -217,15 +226,15 @@ const ShowAdquisiciones = () => {
         }
     }
 
-    const enviarSolicitud = async(metodo,parametros) => {
-        await axios({ method:metodo, url: `${url}/${id}`, data:parametros}).then(function(respuesta){
-            var tipo = respuesta.data[0];
-            var msj = respuesta.data[1];
-            show_alerta(msj,tipo);
+    const enviarSolicitud = async(metodo, parametros) => {
+        await apiPostAdquisicion({ method: metodo, url: `${url}/${id}`, data: parametros }).then((respuesta) => {
+            console.log(respuesta)
+            show_alerta(respuesta.data, tipo);
             if(tipo === 'success'){
                 document.getElementById('btnCerrar').click();
                 getAdquisiciones();
             }
+            setEffect(true);
         })
         .catch(function(error){
             show_alerta('Error en la solicitud','error');
@@ -233,18 +242,17 @@ const ShowAdquisiciones = () => {
         });
     }
 
-    const deleteProduct= (id) =>{
+    const deleteProduct = (adquisicion) => {
         const MySwal = withReactContent(Swal);
         MySwal.fire({
             title:'¿Seguro de eliminar el producto ?',
             icon: 'question',text:'No se podrá dar marcha atrás',
             showCancelButton:true,confirmButtonText:'Si, eliminar',cancelButtonText:'Cancelar'
-        }).then((result) =>{
-            if(result.isConfirmed){
-                setId(id);
-                enviarSolicitud('DELETE',{id:id});
-            }
-            else{
+        }).then(async (result) => {
+            if(result.isConfirmed) {
+                await apiDeleteAdquisicion(url, adquisicion.id);
+                setEffect(true);
+            } else {
                 show_alerta('El producto NO fue eliminado','info');
             }
         });
@@ -292,7 +300,7 @@ const ShowAdquisiciones = () => {
                     <i className='fa-solid fa-edit'></i>
                 </button>
                 &nbsp; 
-                <button onClick={()=>deleteProduct(adquisicion.id)} className='btn btn-danger'>
+                <button onClick={() => deleteProduct(adquisicion)} className='btn btn-danger'>
                     <i className='fa-solid fa-trash'></i>
                 </button>
             </td>)
@@ -308,7 +316,7 @@ const ShowAdquisiciones = () => {
             Fuente de financiamiento: <span className="fw-lighter">{motivoFinanciamiento}</span> 
             </th> 
             <th>
-            Monto disponible: $<span className="fw-lighter">{montoFinanciamiento}</span>
+            Monto disponible: $<span className="fw-lighter">{financiamiento.monto}</span>
             </th>     
                      
         </h1>

@@ -1,10 +1,8 @@
-
 const keycloakConfig = {
-    url: 'http://localhost:8088/',
-    realm: 'basic',
-    clientId: 'react-app',
-    
-  };
+  url: 'http://localhost:9090',
+  realm: 'master',
+  clientId: 'adquisiciones-front',
+};
   
   export default keycloakConfig;
   
