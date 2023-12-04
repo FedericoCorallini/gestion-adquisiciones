@@ -90,15 +90,15 @@ public class ServicioService extends AdquisicionService{
     @Override
     public void eliminarAdquisicion(Long id) {
         Optional<Servicio> servicioOptional = servicioRepository.findById(id);
-        if (servicioOptional.isPresent()){
-            Servicio servicio = servicioOptional.get();
-            FuenteFinanciamiento fuenteFinanciamiento = servicio.getFuenteFinanciamiento();
-            fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto()-servicio.getCosto());
-            servicioRepository.deleteById(id);
-            fuenteRepository.save(fuenteFinanciamiento);
 
+        if (servicioOptional.isEmpty()) {
+            throw new InvalidAdquisicionException("La adquisicion no existe");
         }
 
-        throw new InvalidAdquisicionException("La adquisicion no existe");
+        Servicio servicio = servicioOptional.get();
+        FuenteFinanciamiento fuenteFinanciamiento = servicio.getFuenteFinanciamiento();
+        fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto() + servicio.getCosto());
+        servicioRepository.deleteById(id);
+        fuenteRepository.save(fuenteFinanciamiento);
     }
 }
