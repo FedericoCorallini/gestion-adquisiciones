@@ -3,11 +3,9 @@ package com.giuct.adquisiciones.service;
 import com.giuct.adquisiciones.exceptions.InvalidAdquisicionException;
 import com.giuct.adquisiciones.factory.EquipamientoFactory;
 import com.giuct.adquisiciones.model.dto.AdquisicionDTO;
-import com.giuct.adquisiciones.model.entity.Adquisicion;
-import com.giuct.adquisiciones.model.entity.Bibliografia;
-import com.giuct.adquisiciones.model.entity.Equipamiento;
-import com.giuct.adquisiciones.model.entity.FuenteFinanciamiento;
+import com.giuct.adquisiciones.model.entity.*;
 import com.giuct.adquisiciones.repository.IEquipamientoRepository;
+import com.giuct.adquisiciones.repository.IFuenteRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +21,7 @@ public class EquipamientoService extends AdquisicionService{
     private final IEquipamientoRepository equipamientoRepository;
     private final FinanciamientoService financiamientoService;
     private final EquipamientoFactory equipamientoFactory;
+    private final IFuenteRepository fuenteRepository;
 
 
     @Override
@@ -58,6 +57,11 @@ public class EquipamientoService extends AdquisicionService{
     public void agregarAdquisicion(AdquisicionDTO adquisicionDTO, Long idFinanciamiento) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
         Equipamiento e = equipamientoFactory.crear(adquisicionDTO, fuenteFinanciamiento);
+        fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto()-e.getCosto());
+        if (fuenteFinanciamiento.getMonto() < 0){
+            throw new InvalidAdquisicionException("Fondos insuficientes");
+        }
+        this.fuenteRepository.save(fuenteFinanciamiento);
         equipamientoRepository.save(e);
     }
 
@@ -66,10 +70,17 @@ public class EquipamientoService extends AdquisicionService{
         Optional<Equipamiento> equipamientoOptional = equipamientoRepository.findById(id);
         if(equipamientoOptional.isPresent()){
             Equipamiento e = equipamientoOptional.get();
+            FuenteFinanciamiento fuenteFinanciamiento = e.getFuenteFinanciamiento();
+
+            fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto()+e.getCosto()-adquisicionDTO.getCosto());
+            if (fuenteFinanciamiento.getMonto() < 0){
+                throw new InvalidAdquisicionException("Fondos insuficientes");
+            }
             e.setDenominacion(adquisicionDTO.getDenominacion());
             e.setFechaIncorporacion(adquisicionDTO.getFechaIncorporacion());
             e.setCosto(adquisicionDTO.getCosto());
             e.setDescripcion(adquisicionDTO.getDescripcion());
+            this.fuenteRepository.save(fuenteFinanciamiento);
             equipamientoRepository.save(e);
         }
         else{
@@ -79,6 +90,16 @@ public class EquipamientoService extends AdquisicionService{
 
     @Override
     public void eliminarAdquisicion(Long id) {
-        this.equipamientoRepository.deleteById(id);
+        Optional<Equipamiento> equipamientoOptional = equipamientoRepository.findById(id);
+
+        if (equipamientoOptional.isEmpty()) {
+            throw new InvalidAdquisicionException("La adquisicion no existe");
+        }
+
+        Equipamiento equipamiento = equipamientoOptional.get();
+        FuenteFinanciamiento fuenteFinanciamiento = equipamiento.getFuenteFinanciamiento();
+        fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto() + equipamiento.getCosto());
+        equipamientoRepository.deleteById(id);
+        fuenteRepository.save(fuenteFinanciamiento);
     }
 }

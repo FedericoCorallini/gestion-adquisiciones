@@ -1,13 +1,14 @@
 package com.giuct.adquisiciones.service;
 
-
 import com.giuct.adquisiciones.exceptions.InvalidAdquisicionException;
 import com.giuct.adquisiciones.factory.BibliografiaFactory;
 import com.giuct.adquisiciones.model.dto.AdquisicionDTO;
 import com.giuct.adquisiciones.model.entity.Adquisicion;
 import com.giuct.adquisiciones.model.entity.Bibliografia;
 import com.giuct.adquisiciones.model.entity.FuenteFinanciamiento;
+import com.giuct.adquisiciones.model.entity.Servicio;
 import com.giuct.adquisiciones.repository.IBibliografiaRepository;
+import com.giuct.adquisiciones.repository.IFuenteRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,7 @@ public class BibliografiaService extends AdquisicionService{
     private final IBibliografiaRepository bibliografiaRepository;
     private final FinanciamientoService financiamientoService;
     private final BibliografiaFactory bibliografiaFactory;
+    private final IFuenteRepository fuenteRepository;
 
     @Override
     public Adquisicion getAdquisicionById(Long id) {
@@ -54,6 +56,11 @@ public class BibliografiaService extends AdquisicionService{
     public void agregarAdquisicion(AdquisicionDTO adquisicionDTO, Long idFinanciamiento) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
         Bibliografia b = bibliografiaFactory.crear(adquisicionDTO, fuenteFinanciamiento);
+        fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto()-b.getCosto());
+        if (fuenteFinanciamiento.getMonto() < 0){
+            throw new InvalidAdquisicionException("Fondos insuficientes");
+        }
+        this.fuenteRepository.save(fuenteFinanciamiento);
         bibliografiaRepository.save(b);
     }
 
@@ -62,6 +69,12 @@ public class BibliografiaService extends AdquisicionService{
         Optional<Bibliografia> bibliografiaOptional = bibliografiaRepository.findById(id);
         if(bibliografiaOptional.isPresent()){
             Bibliografia b = bibliografiaOptional.get();
+            FuenteFinanciamiento fuenteFinanciamiento = b.getFuenteFinanciamiento();
+
+            fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto()+b.getCosto()-adquisicionDTO.getCosto());
+            if (fuenteFinanciamiento.getMonto() < 0){
+                throw new InvalidAdquisicionException("Fondos insuficientes");
+            }
             b.setAnioPublicacion(adquisicionDTO.getAnioPublicacion());
             b.setIssn(adquisicionDTO.getIssn());
             b.setIsbn(adquisicionDTO.getIsbn());
@@ -73,6 +86,7 @@ public class BibliografiaService extends AdquisicionService{
             b.setTitulo(adquisicionDTO.getTitulo());
             b.setCosto(adquisicionDTO.getCosto());
             b.setDescripcion(adquisicionDTO.getDescripcion());
+            this.fuenteRepository.save(fuenteFinanciamiento);
             bibliografiaRepository.save(b);
         }
         else{
@@ -82,7 +96,17 @@ public class BibliografiaService extends AdquisicionService{
 
     @Override
     public void eliminarAdquisicion(Long id) {
-        this.bibliografiaRepository.deleteById(id);
+        Optional<Bibliografia> bibliografiaOptional = bibliografiaRepository.findById(id);
+
+        if (bibliografiaOptional.isEmpty()) {
+            throw new InvalidAdquisicionException("La adquisicion no existe");
+        }
+
+        Bibliografia bibliografia = bibliografiaOptional.get();
+        FuenteFinanciamiento fuenteFinanciamiento = bibliografia.getFuenteFinanciamiento();
+        fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto() + bibliografia.getCosto());
+        bibliografiaRepository.deleteById(id);
+        fuenteRepository.save(fuenteFinanciamiento);
     }
 
 

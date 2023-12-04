@@ -3,10 +3,8 @@ package com.giuct.adquisiciones.service;
 import com.giuct.adquisiciones.exceptions.InvalidAdquisicionException;
 import com.giuct.adquisiciones.factory.LicenciaFactory;
 import com.giuct.adquisiciones.model.dto.AdquisicionDTO;
-import com.giuct.adquisiciones.model.entity.Adquisicion;
-import com.giuct.adquisiciones.model.entity.Bibliografia;
-import com.giuct.adquisiciones.model.entity.FuenteFinanciamiento;
-import com.giuct.adquisiciones.model.entity.Licencia;
+import com.giuct.adquisiciones.model.entity.*;
+import com.giuct.adquisiciones.repository.IFuenteRepository;
 import com.giuct.adquisiciones.repository.ILicenciaRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +21,7 @@ public class LicenciaService extends AdquisicionService{
     private final ILicenciaRepository licenciaRepository;
     private final FinanciamientoService financiamientoService;
     private final LicenciaFactory licenciaFactory;
+    private final IFuenteRepository fuenteRepository;
 
 
     @Override
@@ -55,6 +54,11 @@ public class LicenciaService extends AdquisicionService{
     public void agregarAdquisicion(AdquisicionDTO adquisicionDTO, Long idFinanciamiento) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
         Licencia l = licenciaFactory.crear(adquisicionDTO, fuenteFinanciamiento);
+        fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto()-l.getCosto());
+        if (fuenteFinanciamiento.getMonto() < 0){
+            throw new InvalidAdquisicionException("Fondos insuficientes");
+        }
+        this.fuenteRepository.save(fuenteFinanciamiento);
         licenciaRepository.save(l);
     }
 
@@ -63,6 +67,12 @@ public class LicenciaService extends AdquisicionService{
         Optional<Licencia> licenciaOptional = licenciaRepository.findById(id);
         if(licenciaOptional.isPresent()){
             Licencia l = licenciaOptional.get();
+            FuenteFinanciamiento fuenteFinanciamiento = l.getFuenteFinanciamiento();
+
+            fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto()+l.getCosto()-adquisicionDTO.getCosto());
+            if (fuenteFinanciamiento.getMonto() < 0){
+                throw new InvalidAdquisicionException("Fondos insuficientes");
+            }
             l.setAnio(adquisicionDTO.getAnio());
             l.setFabricante(adquisicionDTO.getFabricante());
             l.setNombre(adquisicionDTO.getNombre());
@@ -72,6 +82,7 @@ public class LicenciaService extends AdquisicionService{
             l.setVersion(adquisicionDTO.getVersion());
             l.setCosto(adquisicionDTO.getCosto());
             l.setDescripcion(adquisicionDTO.getDescripcion());
+            this.fuenteRepository.save(fuenteFinanciamiento);
             licenciaRepository.save(l);
         }
         else{
@@ -81,6 +92,16 @@ public class LicenciaService extends AdquisicionService{
 
     @Override
     public void eliminarAdquisicion(Long id) {
-        this.licenciaRepository.deleteById(id);
+        Optional<Licencia> licenciaOptional = licenciaRepository.findById(id);
+
+        if (licenciaOptional.isEmpty()) {
+            throw new InvalidAdquisicionException("La adquisicion no existe");
+        }
+
+        Licencia licencia = licenciaOptional.get();
+        FuenteFinanciamiento fuenteFinanciamiento = licencia.getFuenteFinanciamiento();
+        fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto() + licencia.getCosto());
+        licenciaRepository.deleteById(id);
+        fuenteRepository.save(fuenteFinanciamiento);
     }
 }

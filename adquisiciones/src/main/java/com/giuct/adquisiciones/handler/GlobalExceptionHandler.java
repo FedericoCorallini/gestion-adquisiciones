@@ -15,6 +15,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<MessageDTO> invalidAdquisicionException(InvalidAdquisicionException e){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageDTO(e.getMessage()));
     }
+
     @ExceptionHandler(InvalidFuenteFinanciamientoException.class)
     public ResponseEntity<MessageDTO> invalidFuenteFinanciamientoException(InvalidAdquisicionException e){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageDTO(e.getMessage()));

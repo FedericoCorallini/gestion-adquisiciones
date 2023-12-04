@@ -25,21 +25,13 @@ public class FuenteFinanciamientoController {
         return ResponseEntity.ok(financiamientoService.getFuenteById(id));
     }
 
-//    @GetMapping
-//    public ResponseEntity<Page<FuenteFinanciamiento>> getFuentesFinanciamiento(
-//            @AuthenticationPrincipal Jwt jwt,
-//            @RequestParam(name = "ordenar", required = false, defaultValue = "id") String criterio,
-//            @RequestParam(name="pagina", required = false, defaultValue = "0") Integer nroPagina,
-//            @RequestParam(name="elementos", required = false, defaultValue = "0") Integer nroElementos){
-//        return ResponseEntity.ok(financiamientoService.getFuentes(jwt, nroPagina, nroElementos, criterio));
-//    }
-
     @GetMapping
     public ResponseEntity<Page<FuenteFinanciamiento>> getFuentesFinanciamiento(
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam(name = "ordenar", required = false, defaultValue = "id") String criterio,
             @RequestParam(name="pagina", required = false, defaultValue = "0") Integer nroPagina,
             @RequestParam(name="elementos", required = false, defaultValue = "0") Integer nroElementos){
-        return ResponseEntity.ok(financiamientoService.getFuentes(nroPagina, nroElementos, criterio));
+        return ResponseEntity.ok(financiamientoService.getFuentes(jwt, nroPagina, nroElementos, criterio));
     }
 
     @PostMapping
