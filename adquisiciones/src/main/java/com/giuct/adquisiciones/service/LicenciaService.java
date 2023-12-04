@@ -7,6 +7,7 @@ import com.giuct.adquisiciones.model.entity.*;
 import com.giuct.adquisiciones.repository.IFuenteRepository;
 import com.giuct.adquisiciones.repository.ILicenciaRepository;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,7 +23,7 @@ public class LicenciaService extends AdquisicionService{
     private final FinanciamientoService financiamientoService;
     private final LicenciaFactory licenciaFactory;
     private final IFuenteRepository fuenteRepository;
-
+    private final ModelMapper modelMapper;
 
     @Override
     public Adquisicion getAdquisicionById(Long id) {
@@ -51,7 +52,7 @@ public class LicenciaService extends AdquisicionService{
     }
 
     @Override
-    public void agregarAdquisicion(AdquisicionDTO adquisicionDTO, Long idFinanciamiento) {
+    public AdquisicionDTO agregarAdquisicion(AdquisicionDTO adquisicionDTO, Long idFinanciamiento) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
         Licencia l = licenciaFactory.crear(adquisicionDTO, fuenteFinanciamiento);
         fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto()-l.getCosto());
@@ -60,19 +61,23 @@ public class LicenciaService extends AdquisicionService{
         }
         this.fuenteRepository.save(fuenteFinanciamiento);
         licenciaRepository.save(l);
+        return adquisicionDTO;
     }
 
     @Override
-    public void modificarAdquisicion(Long id, AdquisicionDTO adquisicionDTO) {
+    public AdquisicionDTO modificarAdquisicion(Long id, AdquisicionDTO adquisicionDTO) {
         Optional<Licencia> licenciaOptional = licenciaRepository.findById(id);
+
         if(licenciaOptional.isPresent()){
             Licencia l = licenciaOptional.get();
             FuenteFinanciamiento fuenteFinanciamiento = l.getFuenteFinanciamiento();
 
             fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto()+l.getCosto()-adquisicionDTO.getCosto());
+
             if (fuenteFinanciamiento.getMonto() < 0){
                 throw new InvalidAdquisicionException("Fondos insuficientes");
             }
+
             l.setAnio(adquisicionDTO.getAnio());
             l.setFabricante(adquisicionDTO.getFabricante());
             l.setNombre(adquisicionDTO.getNombre());
@@ -82,12 +87,15 @@ public class LicenciaService extends AdquisicionService{
             l.setVersion(adquisicionDTO.getVersion());
             l.setCosto(adquisicionDTO.getCosto());
             l.setDescripcion(adquisicionDTO.getDescripcion());
+
             this.fuenteRepository.save(fuenteFinanciamiento);
             licenciaRepository.save(l);
-        }
-        else{
+
+        } else {
             throw new InvalidAdquisicionException("La licencia que desea modificar no existe");
         }
+
+        return adquisicionDTO;
     }
 
     @Override

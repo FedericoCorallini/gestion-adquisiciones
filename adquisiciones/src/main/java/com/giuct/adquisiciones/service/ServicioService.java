@@ -4,7 +4,6 @@ import com.giuct.adquisiciones.exceptions.InvalidAdquisicionException;
 import com.giuct.adquisiciones.factory.ServiceFactory;
 import com.giuct.adquisiciones.model.dto.AdquisicionDTO;
 import com.giuct.adquisiciones.model.entity.Adquisicion;
-import com.giuct.adquisiciones.model.entity.Bibliografia;
 import com.giuct.adquisiciones.model.entity.FuenteFinanciamiento;
 import com.giuct.adquisiciones.model.entity.Servicio;
 import com.giuct.adquisiciones.repository.IFuenteRepository;
@@ -53,7 +52,7 @@ public class ServicioService extends AdquisicionService{
     }
 
     @Override
-    public void agregarAdquisicion(AdquisicionDTO adquisicionDTO, Long idFinanciamiento) {
+    public AdquisicionDTO agregarAdquisicion(AdquisicionDTO adquisicionDTO, Long idFinanciamiento) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
         Servicio s = serviceFactory.crear(adquisicionDTO, fuenteFinanciamiento);
         fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto()-s.getCosto());
@@ -62,10 +61,12 @@ public class ServicioService extends AdquisicionService{
         }
         this.fuenteRepository.save(fuenteFinanciamiento);
         this.servicioRepository.save(s);
+
+        return adquisicionDTO;
     }
 
     @Override
-    public void modificarAdquisicion(Long id, AdquisicionDTO adquisicionDTO) {
+    public AdquisicionDTO modificarAdquisicion(Long id, AdquisicionDTO adquisicionDTO) {
         Optional<Servicio> servicioOptional = servicioRepository.findById(id);
         if(servicioOptional.isPresent()){
             Servicio s = servicioOptional.get();

@@ -6,7 +6,6 @@ import com.giuct.adquisiciones.model.dto.AdquisicionDTO;
 import com.giuct.adquisiciones.model.entity.Adquisicion;
 import com.giuct.adquisiciones.model.entity.Bibliografia;
 import com.giuct.adquisiciones.model.entity.FuenteFinanciamiento;
-import com.giuct.adquisiciones.model.entity.Servicio;
 import com.giuct.adquisiciones.repository.IBibliografiaRepository;
 import com.giuct.adquisiciones.repository.IFuenteRepository;
 import lombok.AllArgsConstructor;
@@ -53,19 +52,23 @@ public class BibliografiaService extends AdquisicionService{
     }
 
     @Override
-    public void agregarAdquisicion(AdquisicionDTO adquisicionDTO, Long idFinanciamiento) {
-        FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
-        Bibliografia b = bibliografiaFactory.crear(adquisicionDTO, fuenteFinanciamiento);
+    public AdquisicionDTO agregarAdquisicion(AdquisicionDTO adquisicionDTO, Long idFinanciamiento) {
+        final FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
+        final Bibliografia b = bibliografiaFactory.crear(adquisicionDTO, fuenteFinanciamiento);
         fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto()-b.getCosto());
+
         if (fuenteFinanciamiento.getMonto() < 0){
             throw new InvalidAdquisicionException("Fondos insuficientes");
         }
+
         this.fuenteRepository.save(fuenteFinanciamiento);
         bibliografiaRepository.save(b);
+
+        return adquisicionDTO;
     }
 
     @Override
-    public void modificarAdquisicion(Long id, AdquisicionDTO adquisicionDTO) {
+    public AdquisicionDTO modificarAdquisicion(Long id, AdquisicionDTO adquisicionDTO) {
         Optional<Bibliografia> bibliografiaOptional = bibliografiaRepository.findById(id);
         if(bibliografiaOptional.isPresent()){
             Bibliografia b = bibliografiaOptional.get();
@@ -88,10 +91,11 @@ public class BibliografiaService extends AdquisicionService{
             b.setDescripcion(adquisicionDTO.getDescripcion());
             this.fuenteRepository.save(fuenteFinanciamiento);
             bibliografiaRepository.save(b);
-        }
-        else{
+        } else {
             throw new InvalidAdquisicionException("La bibliografia que desea modificar no existe");
         }
+
+        return adquisicionDTO;
     }
 
     @Override
