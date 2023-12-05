@@ -22,8 +22,7 @@ public class AdquisicionController {
 
     @GetMapping("/{id}")
     public ResponseEntity<? extends Adquisicion> getAdquisiciones(@PathVariable String adquisiciones, @PathVariable Long id){
-        final AdquisicionService adquisicionService = getService(adquisiciones);
-        return ResponseEntity.ok(adquisicionService.getAdquisicionById(id));
+        return ResponseEntity.ok(this.getService(adquisiciones).getAdquisicionById(id));
     }
 
     @GetMapping
@@ -32,8 +31,7 @@ public class AdquisicionController {
             @RequestParam(name = "ordenar", required = false, defaultValue = "id") String criterio,
             @RequestParam(name="pagina", required = false, defaultValue = "0") Integer nroPagina,
             @RequestParam(name="elementos", required = false, defaultValue = "0") Integer nroElementos){
-        final AdquisicionService adquisicionService = getService(adquisiciones);
-        return ResponseEntity.ok(adquisicionService.getAdquisicion(nroPagina, nroElementos, criterio));
+        return ResponseEntity.ok(this.getService(adquisiciones).getAdquisicion(nroPagina, nroElementos, criterio));
     }
 
     @GetMapping("/financiamiento/{idFinanciamiento}")
@@ -43,8 +41,7 @@ public class AdquisicionController {
             @RequestParam(name = "ordenar", required = false, defaultValue = "id") String criterio,
             @RequestParam(name="pagina", required = false, defaultValue = "0") Integer nroPagina,
             @RequestParam(name="elementos", required = false, defaultValue = "0") Integer nroElementos){
-        final AdquisicionService adquisicionService = getService(adquisiciones);
-        return ResponseEntity.ok(adquisicionService.getAdquisicionesByFinanciamiento(idFinanciamiento, criterio, nroPagina, nroElementos));
+        return ResponseEntity.ok(this.getService(adquisiciones).getAdquisicionesByFinanciamiento(idFinanciamiento, criterio, nroPagina, nroElementos));
     }
 
     @PostMapping("/{idFinanciamiento}")
@@ -67,6 +64,7 @@ public class AdquisicionController {
         adquisicionService.eliminarAdquisicion(id);
         return ResponseEntity.ok("Adquisicion eliminada");
     }
+
     private AdquisicionService getService(String servicio){
         return serviceMap.get(servicio);
     }

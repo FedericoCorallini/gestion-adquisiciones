@@ -23,14 +23,13 @@ public class EquipamientoService extends AdquisicionService{
     private final EquipamientoFactory equipamientoFactory;
     private final IFuenteRepository fuenteRepository;
 
-
     @Override
     public Page<? extends Adquisicion> getAdquisicion(Integer nroPagina, Integer nroElementos, String criterio) {
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
-        return equipamientoRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
 
+        return equipamientoRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
     }
 
     @Override
@@ -46,28 +45,35 @@ public class EquipamientoService extends AdquisicionService{
     @Override
     public Page<? extends Adquisicion> getAdquisicionesByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
+
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
+
         return equipamientoRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
     }
 
 
     @Override
-    public void agregarAdquisicion(AdquisicionDTO adquisicionDTO, Long idFinanciamiento) {
+    public AdquisicionDTO agregarAdquisicion(AdquisicionDTO adquisicionDTO, Long idFinanciamiento) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
         Equipamiento e = equipamientoFactory.crear(adquisicionDTO, fuenteFinanciamiento);
         fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto()-e.getCosto());
+
         if (fuenteFinanciamiento.getMonto() < 0){
             throw new InvalidAdquisicionException("Fondos insuficientes");
         }
+
         this.fuenteRepository.save(fuenteFinanciamiento);
         equipamientoRepository.save(e);
+
+        return adquisicionDTO;
     }
 
     @Override
-    public void modificarAdquisicion(Long id, AdquisicionDTO adquisicionDTO) {
+    public AdquisicionDTO modificarAdquisicion(Long id, AdquisicionDTO adquisicionDTO) {
         Optional<Equipamiento> equipamientoOptional = equipamientoRepository.findById(id);
+
         if(equipamientoOptional.isPresent()){
             Equipamiento e = equipamientoOptional.get();
             FuenteFinanciamiento fuenteFinanciamiento = e.getFuenteFinanciamiento();
@@ -82,10 +88,11 @@ public class EquipamientoService extends AdquisicionService{
             e.setDescripcion(adquisicionDTO.getDescripcion());
             this.fuenteRepository.save(fuenteFinanciamiento);
             equipamientoRepository.save(e);
-        }
-        else{
+        } else {
             throw new InvalidAdquisicionException("El equipamiento que desea modificar no existe");
         }
+
+        return adquisicionDTO;
     }
 
     @Override

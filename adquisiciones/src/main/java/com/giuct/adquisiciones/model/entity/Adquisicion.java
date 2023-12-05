@@ -11,8 +11,10 @@ public abstract class Adquisicion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
+
     @Column(name = "costo")
     protected float costo;
+
     @Column(name = "descripcion")
     protected String descripcion;
 
