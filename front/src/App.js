@@ -1,22 +1,20 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import Dashboard from './Dashboard';
-import { initKeycloak, keycloak } from './keycloak';
-import { TokenProvider } from './hooks/TokenProvider';
+import { initKeycloak, keycloak } from './nuevoKeycloak';
 
 function App() {
- 
+
   useEffect(() => {
-    // Inicializar Keycloak al montar el componente
-    initKeycloak().then((response) => {
-      localStorage.setItem('jwt', JSON.stringify(keycloak.token));
-      console.log(localStorage.getItem('jwt'))
-    });
+    const initializeKeycloak = async () => {
+      await initKeycloak();
+    };
+    initializeKeycloak();
   }, []);
 
   return (
-    <TokenProvider>
+      <>
       <Dashboard />
-    </TokenProvider>
+      </>
   )
 }
 

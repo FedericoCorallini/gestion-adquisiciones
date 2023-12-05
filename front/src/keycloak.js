@@ -2,6 +2,7 @@ import Keycloak from 'keycloak-js';
 import keycloakConfig from './keycloakConfig';
 
 const keycloak = new Keycloak(keycloakConfig);
+let keycloakToken = null;
 
 const initKeycloak = async () => {
   try {
@@ -11,7 +12,8 @@ const initKeycloak = async () => {
         }
         else{
             console.log('Keycloak initialized');
-            console.log(keycloak.token);   
+            console.log(keycloak.token);  
+            keycloakToken=keycloak.token; 
         }
     }
     );
@@ -21,4 +23,4 @@ const initKeycloak = async () => {
   }
 };
 
-export { keycloak, initKeycloak };
+export { keycloak, initKeycloak, keycloakToken };

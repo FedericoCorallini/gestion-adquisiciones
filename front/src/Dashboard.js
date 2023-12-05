@@ -3,9 +3,17 @@ import './Dashboard.css';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import ShowAsquisiciones from './components/ShowAdquisiciones';
 import ShowFinanciamientos from './components/ShowFinanciamientos';
+import { initKeycloak, keycloak } from './nuevoKeycloak';
+
 
 function Dashboard() {
     const [style, setStyle] = useState("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion");
+
+    const handleLogout = () => {
+        window.location.href='http://localhost:3000/';
+        initKeycloak();
+        keycloak.logout({ redirectUri: 'http://localhost:3000/' })
+      };
 
     return (
         <div>
@@ -19,7 +27,7 @@ function Dashboard() {
 
                         {/*  <!-- Sidebar - Brand --> */}
                         <a className="sidebar-brand d-flex align-items-center justify-content-center" href="#">
-                            <div className="sidebar-brand-text mx-3">GUICT</div>
+                            <div className="sidebar-brand-text mx-3">GIUCT</div>
                             <div className="text-center d-none d-md-inline">
                         </div>
                         </a>
@@ -62,50 +70,33 @@ function Dashboard() {
                                 <i className="fas fa-fw fa-table"></i>
                                 <span>Comunicaciones cientificas</span></a>
                         </li>
-
-                       
-
-                        {/*   <!-- Sidebar Toggler (Sidebar) --> */}
                      
 
                     </ul>
-                    {/*  <!-- End of Sidebar --> */}
-
-                    {/*  <!-- Content Wrapper --> */}
+                 
                     <div id="content-wrapper" className="d-flex flex-column">
 
                         {/*  <!-- Main Content --> */}
                         <div id="content">
-
                             {/*  <!-- Topbar --> */}
                             <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-
-                                
-
-
                                 {/*  <!-- Topbar Navbar --> */}
                                 <ul className="navbar-nav ml-auto">
-
-                                   
-
-         
                                     <div className="topbar-divider d-none d-sm-block"></div>
 
                                     {/* <!-- Nav Item - User Information --> */}
                                     <li className="nav-item dropdown no-arrow">
                                         <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <span className="mr-2 d-none d-lg-inline text-gray-600 small">Usuario</span>
+                                            <a onClick={handleLogout}>
+                                            <span className="mr-2 d-none d-lg-inline text-gray-600 small">Cerrar Sesion</span>
+                                            </a>
                                             <img className="img-profile rounded-circle"
                                                 src="img/undraw_profile.svg" />
                                         </a>
-                     
                                     </li>
-
                                 </ul>
-
                             </nav>
-                            {/*  <!-- End of Topbar --> */}
 
                             {/* <!-- Begin Page Content --> */}
                             <div className="container-fluid">

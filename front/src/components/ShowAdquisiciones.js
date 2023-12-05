@@ -11,7 +11,6 @@ import { apiDeleteAdquisicion, apiGetAdquisiciones, apiGetFinanciamiento, apiPos
 const ShowAdquisiciones = () => {
     const [effect, setEffect] = useState(false);
     const {idFinanciamiento, motivoFinanciamiento, montoFinanciamiento} = useParams();
-    // const [monto, setMontoFinanciamiento] = useState(montoFinanciamiento);
     const [selectedOption, setSelectedOption] = useState('servicios');
     const urlAdquisiciones = `http://localhost:8080/${selectedOption}/financiamiento/${idFinanciamiento}`;
     const url = `http://localhost:8080/${selectedOption}`
@@ -69,8 +68,22 @@ const ShowAdquisiciones = () => {
     }
 
     const openModal = (op, id, tipo, descripcion, costo, denominacion, nombreAutor, apellidoAutor, editorial, issn, isbn, titulo, urlBiliografia, numeroRelease, version, fabricante, nombre, selectedOption) =>{
-        
+        setUrlBibliografia('');
+        setTitulo('');
+        setEditorial('');
+        setApellidoAutor('');
+        setIssn('');
+        setIsbn('');
+        setNombreAutor('');
+        setDescripcion('');
+        setCosto('');
         setOperation(op);
+        setVersion('');
+        setNumeroRelease('');
+        setNombre('');
+        setFabricante('');
+        setDenominacion('');
+        setTipo('');
         if(op === 1){
             setTitle('Registrar Producto');
             setId(idFinanciamiento);  
@@ -171,11 +184,11 @@ const ShowAdquisiciones = () => {
         }
         else{
             if(operation === 1){
-                parametros= {fabricante:fabricante.trim(),version:version.trim(),nombre:nombre.trim(),numeroRelease:numeroRelease.trim(),descripcion: descripcion.trim(),costo:costo};
+                parametros= {fabricante:fabricante.trim(),version:version.trim(),nombre:nombre.trim(),numero_release:numeroRelease.trim(),descripcion: descripcion.trim(),costo:costo};
                 metodo= 'POST';
             }
             else{
-                parametros={id:id,fabricante:fabricante.trim(),version:version.trim(),nombre:nombre.trim(),numeroRelease:numeroRelease.trim(),descripcion: descripcion.trim(),costo:costo};
+                parametros={id:id,fabricante:fabricante.trim(),version:version.trim(),nombre:nombre.trim(),numero_release:numeroRelease.trim(),descripcion: descripcion.trim(),costo:costo};
                 metodo= 'PUT';
             }
             enviarSolicitud(metodo,parametros);
@@ -215,11 +228,11 @@ const ShowAdquisiciones = () => {
         }
         else{
             if(operation === 1){
-                parametros= {editorial:editorial.trim(),nombreAutor:nombreAutor.trim(),apellidoAutor:apellidoAutor.trim(),isbn:isbn.trim(),issn:issn.trim(),titulo:titulo.trim(),url:urlBiliografia.trim(),descripcion: descripcion.trim(),costo:costo};
+                parametros= {editorial:editorial.trim(),nombre_autor:nombreAutor.trim(),apellido_autor:apellidoAutor.trim(),isbn:isbn.trim(),issn:issn.trim(),titulo:titulo.trim(),url:urlBiliografia.trim(),descripcion: descripcion.trim(),costo:costo};
                 metodo= 'POST';
             }
             else{
-                parametros={id:id,editorial:editorial.trim(),nombreAutor:nombreAutor.trim(),apellidoAutor:apellidoAutor.trim(),isbn:isbn.trim(),issn:issn.trim(),titulo:titulo.trim(),url:urlBiliografia.trim(),descripcion: descripcion.trim(),costo:costo};
+                parametros={id:id,editorial:editorial.trim(),nombre_autor:nombreAutor.trim(),apellido_autor:apellidoAutor.trim(),isbn:isbn.trim(),issn:issn.trim(),titulo:titulo.trim(),url:urlBiliografia.trim(),descripcion: descripcion.trim(),costo:costo};
                 metodo= 'PUT';
             }
             enviarSolicitud(metodo,parametros);
@@ -283,14 +296,14 @@ const ShowAdquisiciones = () => {
                     adquisicion.descripcion,
                     adquisicion.costo,
                     adquisicion.denominacion,
-                    adquisicion.nombreAutor,
-                    adquisicion.apellidoAutor,
+                    adquisicion.nombre_autor,
+                    adquisicion.apellido_autor,
                     adquisicion.editorial,
                     adquisicion.issn,
                     adquisicion.isbn,
                     adquisicion.titulo,
-                    adquisicion.urlBiliografia,
-                    adquisicion.numeroRelease,
+                    adquisicion.url,
+                    adquisicion.numero_release,
                     adquisicion.version,
                     adquisicion.fabricante,
                     adquisicion.nombre,
@@ -398,7 +411,7 @@ const ShowAdquisiciones = () => {
                         <input type='hidden' id='id'></input>
                    
                         <div className='input-group mb-3'>
-                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'> </i></span>
                             <input type='text' id='tipo' className='form-control' placeholder='Tipo' value={tipo}
                             onChange={(e)=> setTipo(e.target.value)}></input>
                         </div>
@@ -408,7 +421,7 @@ const ShowAdquisiciones = () => {
                             onChange={(e)=> setDescripcion(e.target.value)}></input>
                         </div>
                         <div className='input-group mb-3'>
-                            <span className='input-group-text'><i className='fa-solid fa-dollar-sign'></i></span>
+                            <span className='input-group-text'><i className='fa-solid fa-dollar-sign'> </i> </span>
                             <input type='text' id='precio' className='form-control' placeholder='Precio' value={costo}
                             onChange={(e)=> setCosto(e.target.value)}></input>
                         </div>
@@ -453,7 +466,7 @@ const ShowAdquisiciones = () => {
                                  
                                             
                         <div className='d-grid col-6 mx-auto'>
-                            <button onClick={() => validarEquipamiento()} className='btn btn-success'>
+                            <button onClick={() => validarEquipamiento()} className='btn btn-success' >
                                 <i className='fa-solid fa-floppy-disk'></i> Guardar
                             </button>
                         </div>

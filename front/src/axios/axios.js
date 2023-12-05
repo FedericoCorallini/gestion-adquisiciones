@@ -1,17 +1,18 @@
 import axios from "axios"
+import { keycloakToken } from "../keycloak";
 
 const BASE_URL = 'http://localhost:8080'
 
-const TOKEN = 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJFb19jLWp0Zi05R3Vubng0RHJvd29SblFlY0VVazRWZUdJUTF1RzZlYjFZIn0.eyJleHAiOjE3MDE2NzcxMzAsImlhdCI6MTcwMTY0MTEzMSwiYXV0aF90aW1lIjoxNzAxNjQxMTMwLCJqdGkiOiJhM2QxNzI4YS0xYmE1LTQwYTYtOTI2OC0yYTIxODEwNjkyMjciLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjkwOTAvcmVhbG1zL21hc3RlciIsImF1ZCI6WyJiYW5jby1taWNyb3NlcnZpY2UtcmVhbG0tcmVhbG0iLCJtYXN0ZXItcmVhbG0iLCJhY2NvdW50Il0sInN1YiI6IjM3NTAxZDNlLTFiYjQtNDg1Yy04NGEyLWY2MzY4YTQwMWY4ZSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFkcXVpc2ljaW9uZXMtZnJvbnQiLCJub25jZSI6IjNkNzA2ZWE3LWZlYjktNDUyMy04ZTA0LTUzODY0NGUzM2ZmZiIsInNlc3Npb25fc3RhdGUiOiIwNGNkYzk4My1lZTA2LTQ4OTMtOTM2Mi0yYzQ1MmU2YjY1MjgiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbIioiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImNyZWF0ZS1yZWFsbSIsImRlZmF1bHQtcm9sZXMtbWFzdGVyIiwib2ZmbGluZV9hY2Nlc3MiLCJhZG1pbiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYmFuY28tbWljcm9zZXJ2aWNlLXJlYWxtLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInF1ZXJ5LXJlYWxtcyIsInZpZXctYXV0aG9yaXphdGlvbiIsInF1ZXJ5LWNsaWVudHMiLCJxdWVyeS11c2VycyIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIiwicXVlcnktZ3JvdXBzIl19LCJtYXN0ZXItcmVhbG0iOnsicm9sZXMiOlsidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJ2aWV3LXJlYWxtIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwicXVlcnktcmVhbG1zIiwidmlldy1hdXRob3JpemF0aW9uIiwicXVlcnktY2xpZW50cyIsInF1ZXJ5LXVzZXJzIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiLCJxdWVyeS1ncm91cHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJzaWQiOiIwNGNkYzk4My1lZTA2LTQ4OTMtOTM2Mi0yYzQ1MmU2YjY1MjgiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6ImFkbWluIn0.I7cQLXo3v-3oXufpWZhDDLoYAlXWCPY6PQwcexE1nfPzY_HuKjbwq59PL0NxPv6A-JJuWBSaomQHA3mvq4bzNIj6Q1aYZwnbPIJL37bsOFTmr_mv-uxHhXa9HJ4UtGKiw2plOaA7kMc5L9dMhcWhQfXanG8wlIHonmgHrjSinyL5axMKzocE9XhVLz7xlLcoQSnNpyEzX0z4KuXSQk4nKO3ANsuvRdNOgsHMW1ObbFzk9GhoYAtUOJ5HlFUY7cgxw8HbSrP2Amjag4jFBtPGFkOZQZvAxiSpdpwZihi_s1gFBpxWsH0K2KUd5BZ-q3bCvWRtrr33NSpMog4KVq07TA';
+//const TOKEN = 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJEQzA2UTdvUzVIZ1J3SUNaRGVMVWd0WXBYWTVKWlc1aUpOd1Ixd1pEWTgwIn0.eyJleHAiOjE3MDE2NTU3MzYsImlhdCI6MTcwMTY1NTQzNiwiYXV0aF90aW1lIjoxNzAxNjUzNDMwLCJqdGkiOiJhOGI3Mjg4NC01NWQwLTQwYjEtOTQxYy0wYzhiNTk3YjRiYmIiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODgvcmVhbG1zL2Jhc2ljIiwiYXVkIjpbInNwcmluZy1hZHF1aXNpY2lvbmVzIiwiYWNjb3VudCJdLCJzdWIiOiJmYjljOTEyMy1jMTAzLTQxNzUtOTE5MC02YmQ5OGU3MTM3ZjUiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJyZWFjdC1hcHAiLCJub25jZSI6IjY5YjRlNTE1LTBkMGMtNGFhMC05YTdkLWM0NzNmMzVlZjE3OCIsInNlc3Npb25fc3RhdGUiOiJjZjlkZGU2ZC02YjU1LTQ2YjctYThmZi0yMjQyMmU4OWVlODEiLCJhY3IiOiIwIiwiYWxsb3dlZC1vcmlnaW5zIjpbIioiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtYmFzaWMiLCJTWVNfQURNSU4iLCJvZmZsaW5lX2FjY2VzcyIsIkRpcmVjdG9yIiwicmVhbG1BZG1pbiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsic3ByaW5nLWFkcXVpc2ljaW9uZXMiOnsicm9sZXMiOlsiYWRtaW5fY2xpZW50X3JvbGUiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJzaWQiOiJjZjlkZGU2ZC02YjU1LTQ2YjctYThmZi0yMjQyMmU4OWVlODEiLCJiaXJ0aGRhdGUiOiIxNC0xMS0xOTg5IiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJhcGVsbGlkbyI6ImNvcmFsbGluaSIsInByZWZlcnJlZF91c2VybmFtZSI6ImFkbWluMSIsImdpdmVuX25hbWUiOiIiLCJub21icmUiOiJmZWRlcmljbyIsImZhbWlseV9uYW1lIjoiIiwiZG5pIjoiMzUwMTczMjEifQ.bk7NkIYYjctO6DfC700shMKxGm7CNg89MSQOmvQnpioZRn4yKpIYgzGzUNnXeRpqRNyAaw8PzC_VHiSP5_NEnIH_R4LR-EsVlIAEaOw12KQp10-HdXNTMZuPWepJpKaOVdl-mDC9GoIoULGubUMecdpXMKKbECJHE594SNaLdwiD368ZKHDY6dAdadRGdkR92E98y92qRSz5GsfL3Ij2mj2ctOgVCLUsyPnGwZLqI1iO5cQ5xgmpVVPSiC-9vhtxr3Ayx1I1rtkG7_Aaz2Wyb0_kByhNg4_JsqTUG70WO0Ha6QruP7VAy9YkY6sWKrtoqcqJ4YkSy0dxmahQfKp8cQ';
 
-export const apiGetFinancimientos = async (token) => {
+export const apiGetFinancimientos = async () => {
     
     const config = {
         method: `get`,
         url: BASE_URL + '/fuentes-financiamiento',
         headers: { 
             'Access-Control-Allow-Origin': '*', 
-            'Authorization': 'Bearer ' +  TOKEN
+            'Authorization': 'Bearer ' +  sessionStorage.getItem('jwt')
         }
     } 
 
@@ -25,7 +26,7 @@ export const apiGetAdquisiciones = async (url) => {
         url: url,
         headers: { 
             'Access-Control-Allow-Origin': '*', 
-            'Authorization': 'Bearer ' +  TOKEN
+            'Authorization': 'Bearer ' +  sessionStorage.getItem('jwt')
         }
     } 
 
@@ -42,7 +43,7 @@ export const apiPostAdquisicion = async ( data ) => {
         data: data.data,
         headers: { 
             'Access-Control-Allow-Origin': '*', 
-            'Authorization': 'Bearer ' +  TOKEN
+            'Authorization': 'Bearer ' +  sessionStorage.getItem('jwt')
         }
     }
 
@@ -56,7 +57,7 @@ export const apiDeleteAdquisicion = async (url, id ) => {
         url: url + '/' + id,
         headers: { 
             'Access-Control-Allow-Origin': '*', 
-            'Authorization': 'Bearer ' +  TOKEN
+            'Authorization': 'Bearer ' +  sessionStorage.getItem('jwt')
         }
     }
 
@@ -70,7 +71,7 @@ export const apiGetFinanciamiento = async (url) => {
         url: url,
         headers: { 
             'Access-Control-Allow-Origin': '*', 
-            'Authorization': 'Bearer ' +  TOKEN
+            'Authorization': 'Bearer ' +  sessionStorage.getItem('jwt')
         }
     } 
 

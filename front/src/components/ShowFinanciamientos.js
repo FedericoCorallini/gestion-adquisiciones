@@ -13,21 +13,18 @@ import { useToken } from '../hooks/TokenProvider';
 
 const ShowFinanciamientos = () => {
     const [financiamientos, setFinanciamientos] = useState([]);
-    const { token, updateToken } = useToken();
+   
     const [id, setId]= useState('');
     const financiamientosList = financiamientos.content || [];
     const rowsWithRowNumber = financiamientosList.map((row, index) => ({ ...row, rowNumber: index + 1 }));
 
     useEffect(() => {
-        console.log(token);
-        // apiGetFinancimientos(token).then((response) => {
-        //     setFinanciamientos(response.data);
-        // });
+        console.log(localStorage.getItem('jwt'))
         getFinanciamientos();
     },[]);
   
     const getFinanciamientos = async () => {
-        const respuesta = await apiGetFinancimientos(keycloak.token);
+        const respuesta = await apiGetFinancimientos();
         setFinanciamientos(respuesta.data);
     }
 
@@ -78,28 +75,7 @@ const ShowFinanciamientos = () => {
                 selectRows={true}
                 >
                 </MDBDataTable>
-{/*       
-                <MDBTable hover >
-                    <MDBTableHead light >
-                    <tr><th>Financiamientos</th><th>Descripcion</th><th>Monto</th><th>Motivo</th><th>Ingresar</th></tr>
-                    </MDBTableHead>
-                    <MDBTableBody>
-                                {financiamientosList.map((financiamiento,i)=>(
-                                    <tr key={financiamiento.id}>
-                                        <td>{(i+1)}</td>
-                                        <td>{financiamiento.fecha_acreditacion}</td>
-                                        <td>${new Intl.NumberFormat('es-ar').format(financiamiento.monto)}</td>
-                                        <td>{financiamiento.motivo}</td>
-                                        <td>
-                                            <Link to={`/${financiamiento.id}`} className="col-md-5 btn btn-primary ">
-                                                <i className="fa fa-arrow-right"></i>
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))
-                                } 
-                    </MDBTableBody>
-                </MDBTable> */}
+
             </div>
         </div>
     </div>
