@@ -16,6 +16,9 @@ public class BibliografiaFactory extends AdquisicionFactory{
 
     @Override
     public Bibliografia crear(AdquisicionDTO adquisicionDTO, FuenteFinanciamiento fuenteFinanciamiento) {
-        return modelMapper.map(adquisicionDTO, Bibliografia.class);
+        Bibliografia bibliografia = modelMapper.map(adquisicionDTO, Bibliografia.class);
+        bibliografia.setFuenteFinanciamiento(fuenteFinanciamiento);
+
+        return bibliografia;
     }
 }

@@ -16,6 +16,9 @@ public class LicenciaFactory extends AdquisicionFactory{
 
     @Override
     public Licencia crear(AdquisicionDTO adquisicionDTO, FuenteFinanciamiento fuenteFinanciamiento) {
-        return modelMapper.map(adquisicionDTO, Licencia.class);
+        Licencia licencia = modelMapper.map(adquisicionDTO, Licencia.class);
+        licencia.setFuenteFinanciamiento(fuenteFinanciamiento);
+
+        return licencia;
     }
 }

@@ -16,6 +16,9 @@ public class EquipamientoFactory extends AdquisicionFactory{
 
     @Override
     public Equipamiento crear(AdquisicionDTO adquisicionDTO, FuenteFinanciamiento fuenteFinanciamiento) {
-        return modelMapper.map(adquisicionDTO, Equipamiento.class);
+        Equipamiento equipamiento = modelMapper.map(adquisicionDTO, Equipamiento.class);
+        equipamiento.setFuenteFinanciamiento(fuenteFinanciamiento);
+
+        return equipamiento;
     }
 }

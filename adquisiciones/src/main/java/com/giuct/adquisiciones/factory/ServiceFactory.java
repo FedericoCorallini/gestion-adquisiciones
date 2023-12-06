@@ -16,6 +16,9 @@ public class ServiceFactory extends AdquisicionFactory{
 
     @Override
     public Servicio crear(AdquisicionDTO adquisicionDTO, FuenteFinanciamiento fuenteFinanciamiento) {
-        return modelMapper.map(adquisicionDTO, Servicio.class);
+        Servicio servicio = modelMapper.map(adquisicionDTO, Servicio.class);
+        servicio.setFuenteFinanciamiento(fuenteFinanciamiento);
+
+        return servicio;
     }
 }
