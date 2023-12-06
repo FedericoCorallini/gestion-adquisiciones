@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Setter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AdquisicionDTO {
-
+    private Long id;
     private float costo;
     private String descripcion;
 

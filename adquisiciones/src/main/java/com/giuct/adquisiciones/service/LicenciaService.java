@@ -16,14 +16,16 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service("licencias")
-@AllArgsConstructor
 public class LicenciaService extends AdquisicionService{
 
     private final ILicenciaRepository licenciaRepository;
-    private final FinanciamientoService financiamientoService;
     private final LicenciaFactory licenciaFactory;
-    private final IFuenteRepository fuenteRepository;
-    private final ModelMapper modelMapper;
+
+    public LicenciaService(IFuenteRepository fuenteRepository, FinanciamientoService financiamientoService, ModelMapper modelMapper, ILicenciaRepository licenciaRepository, LicenciaFactory licenciaFactory) {
+        super(fuenteRepository, financiamientoService, modelMapper);
+        this.licenciaRepository = licenciaRepository;
+        this.licenciaFactory = licenciaFactory;
+    }
 
     @Override
     public Adquisicion getAdquisicionById(Long id) {

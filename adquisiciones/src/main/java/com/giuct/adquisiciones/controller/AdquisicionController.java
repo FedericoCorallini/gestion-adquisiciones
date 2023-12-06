@@ -45,17 +45,13 @@ public class AdquisicionController {
     }
 
     @PostMapping("/{idFinanciamiento}")
-    public ResponseEntity<String> agregarAdquisicion(@PathVariable String adquisiciones, @RequestBody AdquisicionDTO adquisicionDTO, @PathVariable Long idFinanciamiento){
-        final AdquisicionService adquisicionService = getService(adquisiciones);
-        adquisicionService.agregarAdquisicion(adquisicionDTO, idFinanciamiento);
-        return ResponseEntity.ok("Adquisicion agregada");
+    public ResponseEntity<AdquisicionDTO> agregarAdquisicion(@PathVariable String adquisiciones, @RequestBody AdquisicionDTO adquisicionDTO, @PathVariable Long idFinanciamiento){
+        return ResponseEntity.ok(this.getService(adquisiciones).agregarAdquisicion(adquisicionDTO, idFinanciamiento));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> modificarAdquisicion(@PathVariable String adquisiciones, @RequestBody AdquisicionDTO adquisicionDTO, @PathVariable Long id){
-        final AdquisicionService adquisicionService = getService(adquisiciones);
-        adquisicionService.modificarAdquisicion(id, adquisicionDTO);
-        return ResponseEntity.ok("Adquisicion modificada");
+    public ResponseEntity<AdquisicionDTO> modificarAdquisicion(@PathVariable String adquisiciones, @RequestBody AdquisicionDTO adquisicionDTO, @PathVariable Long id){
+        return ResponseEntity.ok(this.getService(adquisiciones).modificarAdquisicion(id, adquisicionDTO));
     }
 
     @DeleteMapping("/{id}")
