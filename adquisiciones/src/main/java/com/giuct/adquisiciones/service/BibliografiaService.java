@@ -8,7 +8,7 @@ import com.giuct.adquisiciones.model.entity.Bibliografia;
 import com.giuct.adquisiciones.model.entity.FuenteFinanciamiento;
 import com.giuct.adquisiciones.repository.IBibliografiaRepository;
 import com.giuct.adquisiciones.repository.IFuenteRepository;
-import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -17,12 +17,15 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service("bibliografias")
-@AllArgsConstructor
 public class BibliografiaService extends AdquisicionService{
     private final IBibliografiaRepository bibliografiaRepository;
-    private final FinanciamientoService financiamientoService;
     private final BibliografiaFactory bibliografiaFactory;
-    private final IFuenteRepository fuenteRepository;
+
+    public BibliografiaService(IFuenteRepository fuenteRepository, FinanciamientoService financiamientoService, ModelMapper modelMapper, IBibliografiaRepository bibliografiaRepository, BibliografiaFactory bibliografiaFactory) {
+        super(fuenteRepository, financiamientoService, modelMapper);
+        this.bibliografiaRepository = bibliografiaRepository;
+        this.bibliografiaFactory = bibliografiaFactory;
+    }
 
     @Override
     public Adquisicion getAdquisicionById(Long id) {
@@ -69,48 +72,50 @@ public class BibliografiaService extends AdquisicionService{
 
     @Override
     public AdquisicionDTO modificarAdquisicion(Long id, AdquisicionDTO adquisicionDTO) {
-        Optional<Bibliografia> bibliografiaOptional = bibliografiaRepository.findById(id);
-        if(bibliografiaOptional.isPresent()){
-            Bibliografia b = bibliografiaOptional.get();
-            FuenteFinanciamiento fuenteFinanciamiento = b.getFuenteFinanciamiento();
+        bibliografiaRepository.findById(id).stream()
+                .peek(bibliografia -> {
+                    FuenteFinanciamiento fuenteFinanciamiento = bibliografia.getFuenteFinanciamiento();
 
-            fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto()+b.getCosto()-adquisicionDTO.getCosto());
-            if (fuenteFinanciamiento.getMonto() < 0){
-                throw new InvalidAdquisicionException("Fondos insuficientes");
-            }
-            b.setAnioPublicacion(adquisicionDTO.getAnioPublicacion());
-            b.setIssn(adquisicionDTO.getIssn());
-            b.setIsbn(adquisicionDTO.getIsbn());
-            b.setTipo(adquisicionDTO.getTipo());
-            b.setEditorial(adquisicionDTO.getEditorial());
-            b.setApellidoAutor(adquisicionDTO.getApellidoAutor());
-            b.setNombreAutor(adquisicionDTO.getNombreAutor());
-            b.setUrl(adquisicionDTO.getUrl());
-            b.setTitulo(adquisicionDTO.getTitulo());
-            b.setCosto(adquisicionDTO.getCosto());
-            b.setDescripcion(adquisicionDTO.getDescripcion());
-            this.fuenteRepository.save(fuenteFinanciamiento);
-            bibliografiaRepository.save(b);
-        } else {
-            throw new InvalidAdquisicionException("La bibliografia que desea modificar no existe");
-        }
+                    fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto() + bibliografia.getCosto() - adquisicionDTO.getCosto());
+
+                    if (fuenteFinanciamiento.getMonto() < 0){
+                        throw new InvalidAdquisicionException("Fondos insuficientes");
+                    }
+
+                    bibliografia.setAnioPublicacion(adquisicionDTO.getAnioPublicacion());
+                    bibliografia.setIssn(adquisicionDTO.getIssn());
+                    bibliografia.setIsbn(adquisicionDTO.getIsbn());
+                    bibliografia.setTipo(adquisicionDTO.getTipo());
+                    bibliografia.setEditorial(adquisicionDTO.getEditorial());
+                    bibliografia.setApellidoAutor(adquisicionDTO.getApellidoAutor());
+                    bibliografia.setNombreAutor(adquisicionDTO.getNombreAutor());
+                    bibliografia.setUrl(adquisicionDTO.getUrl());
+                    bibliografia.setTitulo(adquisicionDTO.getTitulo());
+                    bibliografia.setCosto(adquisicionDTO.getCosto());
+                    bibliografia.setDescripcion(adquisicionDTO.getDescripcion());
+
+                    this.fuenteRepository.save(fuenteFinanciamiento);
+                    bibliografiaRepository.save(bibliografia);
+                })
+                .findFirst()
+                .orElseThrow(() -> new InvalidAdquisicionException("La bibliografia que desea modificar no existe"));
 
         return adquisicionDTO;
     }
 
     @Override
     public void eliminarAdquisicion(Long id) {
-        Optional<Bibliografia> bibliografiaOptional = bibliografiaRepository.findById(id);
+        bibliografiaRepository.findById(id)
+                .stream()
+                .peek(bibliografia -> {
+                    FuenteFinanciamiento fuenteFinanciamiento = bibliografia.getFuenteFinanciamiento();
+                    fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto() + bibliografia.getCosto());
+                    bibliografiaRepository.deleteById(id);
+                    fuenteRepository.save(fuenteFinanciamiento);
+                })
+                .findFirst()
+                .orElseThrow(() ->  new InvalidAdquisicionException("La adquisicion no existe"));
 
-        if (bibliografiaOptional.isEmpty()) {
-            throw new InvalidAdquisicionException("La adquisicion no existe");
-        }
-
-        Bibliografia bibliografia = bibliografiaOptional.get();
-        FuenteFinanciamiento fuenteFinanciamiento = bibliografia.getFuenteFinanciamiento();
-        fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto() + bibliografia.getCosto());
-        bibliografiaRepository.deleteById(id);
-        fuenteRepository.save(fuenteFinanciamiento);
     }
 
 

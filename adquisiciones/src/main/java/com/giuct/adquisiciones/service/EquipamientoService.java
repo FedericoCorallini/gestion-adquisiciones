@@ -7,6 +7,7 @@ import com.giuct.adquisiciones.model.entity.*;
 import com.giuct.adquisiciones.repository.IEquipamientoRepository;
 import com.giuct.adquisiciones.repository.IFuenteRepository;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -15,13 +16,16 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service("equipamientos")
-@AllArgsConstructor
 public class EquipamientoService extends AdquisicionService{
 
     private final IEquipamientoRepository equipamientoRepository;
-    private final FinanciamientoService financiamientoService;
     private final EquipamientoFactory equipamientoFactory;
-    private final IFuenteRepository fuenteRepository;
+
+    public EquipamientoService(IFuenteRepository fuenteRepository, FinanciamientoService financiamientoService, ModelMapper modelMapper, IEquipamientoRepository equipamientoRepository, EquipamientoFactory equipamientoFactory) {
+        super(fuenteRepository, financiamientoService, modelMapper);
+        this.equipamientoRepository = equipamientoRepository;
+        this.equipamientoFactory = equipamientoFactory;
+    }
 
     @Override
     public Page<? extends Adquisicion> getAdquisicion(Integer nroPagina, Integer nroElementos, String criterio) {

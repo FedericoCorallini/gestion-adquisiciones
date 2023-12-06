@@ -8,7 +8,7 @@ import com.giuct.adquisiciones.model.entity.FuenteFinanciamiento;
 import com.giuct.adquisiciones.model.entity.Servicio;
 import com.giuct.adquisiciones.repository.IFuenteRepository;
 import com.giuct.adquisiciones.repository.IServicioRepository;
-import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -17,13 +17,16 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service("servicios")
-@AllArgsConstructor
 public class ServicioService extends AdquisicionService{
 
     private final IServicioRepository servicioRepository;
-    private final FinanciamientoService financiamientoService;
     private final ServiceFactory serviceFactory;
-    private final IFuenteRepository fuenteRepository;
+
+    public ServicioService(IFuenteRepository fuenteRepository, FinanciamientoService financiamientoService, ModelMapper modelMapper, IServicioRepository servicioRepository, ServiceFactory serviceFactory) {
+        super(fuenteRepository, financiamientoService, modelMapper);
+        this.servicioRepository = servicioRepository;
+        this.serviceFactory = serviceFactory;
+    }
 
     @Override
     public Page<? extends Adquisicion> getAdquisicionesByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
@@ -86,6 +89,8 @@ public class ServicioService extends AdquisicionService{
         else{
             throw new InvalidAdquisicionException("La bibliografia que desea modificar no existe");
         }
+
+        return adquisicionDTO;
     }
 
     @Override
