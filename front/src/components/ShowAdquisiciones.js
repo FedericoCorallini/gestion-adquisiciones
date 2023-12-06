@@ -85,7 +85,7 @@ const ShowAdquisiciones = () => {
         setDenominacion('');
         setTipo('');
         if(op === 1){
-            setTitle('Registrar Producto');
+            setTitle('Registrar adquisicion');
             setId(idFinanciamiento);  
             setDescripcion('');
             setCosto('');
@@ -114,7 +114,7 @@ const ShowAdquisiciones = () => {
             
         }
         else if(op === 2){
-            setTitle('Editar Producto');
+            setTitle('Editar adquisicion');
             setId(id);
             setDescripcion(descripcion);
             setCosto(costo);
@@ -139,14 +139,42 @@ const ShowAdquisiciones = () => {
                 setIsbn(isbn);
                 setNombreAutor(nombreAutor);
             }
-            
-            
-          
+  
         }
-
-        window.setTimeout(function(){
-            document.getElementById('descripcion').focus();
-        },500);
+        
+        else if(op === 3){
+            setTitle('Detalles de la adquisicion');
+            setId(id);
+            setDescripcion(descripcion);
+            setCosto(costo);
+            if(selectedOption === 'servicios'){
+                setTipo(tipo);
+            }
+            else if(selectedOption === 'equipamientos'){
+                setDenominacion(denominacion);
+            }
+            else if(selectedOption === 'licencias'){
+                setVersion(version);
+                setNumeroRelease(numeroRelease);
+                setNombre(nombre);
+                setFabricante(fabricante);
+            }
+            else if(selectedOption === 'bibliografias'){
+                setUrlBibliografia(urlBiliografia);
+                setTitulo(titulo);
+                setEditorial(editorial);
+                setApellidoAutor(apellidoAutor);
+                setIssn(issn);
+                setIsbn(isbn);
+                setNombreAutor(nombreAutor);
+            }
+  
+        }
+       
+        
+        // window.setTimeout(function(){
+        //     document.getElementById('descripcion').focus();
+        // },500);
 
     
     }
@@ -155,10 +183,10 @@ const ShowAdquisiciones = () => {
         var parametros;
         var metodo;
         if(descripcion.trim() === ''){
-            show_alerta('Escriba la descripcion del producto','warning');
+            show_alerta('Escriba la descripcion de la adquisicion','warning');
         }
         else if(costo === ''){
-            show_alerta('Escribe el precio del producto','warning');
+            show_alerta('Escriba el precio de la adquisicion','warning');
         }
         else{
             if(operation === 1){
@@ -177,10 +205,10 @@ const ShowAdquisiciones = () => {
         var parametros;
         var metodo;
         if(descripcion.trim() === ''){
-            show_alerta('Escriba la descripcion del producto','warning');
+            show_alerta('Escriba la descripcion de la adquisicion','warning');
         }
         else if(costo === ''){
-            show_alerta('Escribe el precio del producto','warning');
+            show_alerta('Escriba el precio de la adquisicion','warning');
         }
         else{
             if(operation === 1){
@@ -199,10 +227,10 @@ const ShowAdquisiciones = () => {
         var parametros;
         var metodo;
         if(descripcion.trim() === ''){
-            show_alerta('Escriba la descripcion del producto','warning');
+            show_alerta('Escriba la descripcion de la adquisicion','warning');
         }
         else if(costo === ''){
-            show_alerta('Escribe el precio del producto','warning');
+            show_alerta('Escriba el precio de la adquisicion','warning');
         }
         else{
             if(operation === 1){
@@ -221,10 +249,10 @@ const ShowAdquisiciones = () => {
         var parametros;
         var metodo;
         if(descripcion.trim() === ''){
-            show_alerta('Escriba la descripcion del producto','warning');
+            show_alerta('Escriba la descripcion de la adquisicion','warning');
         }
         else if(costo === ''){
-            show_alerta('Escribe el precio del producto','warning');
+            show_alerta('Escriba el precio de la adquisicion','warning');
         }
         else{
             if(operation === 1){
@@ -242,7 +270,7 @@ const ShowAdquisiciones = () => {
     const enviarSolicitud = async(metodo, parametros) => {
         await apiPostAdquisicion({ method: metodo, url: `${url}/${id}`, data: parametros }).then((respuesta) => {
             console.log(respuesta)
-            show_alerta(respuesta.data, tipo);
+            show_alerta(metodo==='POST'? 'Adquisicion agregada' : 'Adquisicion modificada', tipo);
             if(tipo === 'success'){
                 document.getElementById('btnCerrar').click();
                 getAdquisiciones();
@@ -258,7 +286,7 @@ const ShowAdquisiciones = () => {
     const deleteProduct = (adquisicion) => {
         const MySwal = withReactContent(Swal);
         MySwal.fire({
-            title:'¿Seguro de eliminar el producto ?',
+            title:'¿Esta seguro que desea eliminar la adquisicion?',
             icon: 'question',text:'No se podrá dar marcha atrás',
             showCancelButton:true,confirmButtonText:'Si, eliminar',cancelButtonText:'Cancelar'
         }).then(async (result) => {
@@ -266,7 +294,7 @@ const ShowAdquisiciones = () => {
                 await apiDeleteAdquisicion(url, adquisicion.id);
                 setEffect(true);
             } else {
-                show_alerta('El producto NO fue eliminado','info');
+                show_alerta('La adquisicion no fue eliminada','info');
             }
         });
     }
@@ -288,7 +316,31 @@ const ShowAdquisiciones = () => {
             descripcion: adquisicion.descripcion,
             costo: adquisicion.costo,
             acciones: (    
-            <td>
+            <td >
+                <button onClick={() => openModal(
+                    3,
+                    adquisicion.id,
+                    adquisicion.tipo,
+                    adquisicion.descripcion,
+                    adquisicion.costo,
+                    adquisicion.denominacion,
+                    adquisicion.nombre_autor,
+                    adquisicion.apellido_autor,
+                    adquisicion.editorial,
+                    adquisicion.issn,
+                    adquisicion.isbn,
+                    adquisicion.titulo,
+                    adquisicion.url,
+                    adquisicion.numero_release,
+                    adquisicion.version,
+                    adquisicion.fabricante,
+                    adquisicion.nombre,
+                    selectedOption
+                    )}
+                     className='btn btn-secondary' data-bs-toggle='modal' data-bs-target={`#modalProducts-${selectedOption}-ver`}>
+                    <i className='fa-solid fa-eye'></i>
+                </button>
+                &nbsp; 
                 <button onClick={() => openModal(
                     2,
                     adquisicion.id,
@@ -315,12 +367,11 @@ const ShowAdquisiciones = () => {
                 &nbsp; 
                 <button onClick={() => deleteProduct(adquisicion)} className='btn btn-danger'>
                     <i className='fa-solid fa-trash'></i>
-                </button>
+                </button>    
             </td>)
         })
     });
 
-   
 
   return (
     <div className='App'>
@@ -371,6 +422,7 @@ const ShowAdquisiciones = () => {
              small
              noBottomColumns={true}
              selectRows={true}
+             
             >
             </MDBDataTable>
             <div>
@@ -400,6 +452,38 @@ const ShowAdquisiciones = () => {
             </div> */}
 
         </div>
+        <div id='modalProducts-servicios-ver' className='modal fade' aria-hidden='true'>
+            <div className='modal-dialog'>
+                <div className='modal-content'>
+                    <div className='modal-header'>
+                        <label className='h5'>{title}</label>
+                        <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                    </div>
+                    <div className='modal-body'>
+                        <input type='hidden' id='id'></input>
+                   
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='descripcion' className='form-control' placeholder='Descripción' value={descripcion}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'> </i></span>
+                            <input type='text' id='tipo' className='form-control' placeholder='Tipo' value={tipo}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-dollar-sign'> </i> </span>
+                            <input type='text' id='precio' className='form-control' placeholder='Precio' value={costo}
+                            ></input>
+                        </div>                 
+                    </div>
+                    <div className='modal-footer'>
+                        <button type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id='modalProducts-servicios' className='modal fade' aria-hidden='true'>
             <div className='modal-dialog'>
                 <div className='modal-content'>
@@ -411,14 +495,14 @@ const ShowAdquisiciones = () => {
                         <input type='hidden' id='id'></input>
                    
                         <div className='input-group mb-3'>
-                            <span className='input-group-text'><i className='fa-solid fa-comment'> </i></span>
-                            <input type='text' id='tipo' className='form-control' placeholder='Tipo' value={tipo}
-                            onChange={(e)=> setTipo(e.target.value)}></input>
-                        </div>
-                        <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
                             <input type='text' id='descripcion' className='form-control' placeholder='Descripción' value={descripcion}
                             onChange={(e)=> setDescripcion(e.target.value)}></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'> </i></span>
+                            <input type='text' id='tipo' className='form-control' placeholder='Tipo' value={tipo}
+                            onChange={(e)=> setTipo(e.target.value)}></input>
                         </div>
                         <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-dollar-sign'> </i> </span>
@@ -477,6 +561,39 @@ const ShowAdquisiciones = () => {
                 </div>
             </div>
         </div>
+        <div id='modalProducts-equipamientos-ver' className='modal fade' aria-hidden='true'>
+            <div className='modal-dialog'>
+                <div className='modal-content'>
+                    <div className='modal-header'>
+                        <label className='h5'>{title}</label>
+                        <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                    </div>
+                    <div className='modal-body'>
+                        <input type='hidden' id='id'></input>
+                
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='descripcion' className='form-control' placeholder='Descripción' value={descripcion}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='denominacion' className='form-control' placeholder='Denominacion' value={denominacion}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-dollar-sign'></i></span>
+                            <input type='text' id='precio' className='form-control' placeholder='Precio' value={costo}
+                            ></input>
+                        </div>
+                                 
+                    </div>
+                    <div className='modal-footer'>
+                        <button type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id='modalProducts-bibliografias' className='modal fade' aria-hidden='true'>
             <div className='modal-dialog'>
                 <div className='modal-content'>
@@ -487,6 +604,11 @@ const ShowAdquisiciones = () => {
                     <div className='modal-body'>
                         <input type='hidden' id='id'></input>
                    
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='descripcion' className='form-control' placeholder='Descripción' value={descripcion}
+                            onChange={(e)=> setDescripcion(e.target.value)}></input>
+                        </div>
                         <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
                             <input type='text' id='nombreAutor' className='form-control' placeholder='Nombre Autor' value={nombreAutor}
@@ -523,11 +645,6 @@ const ShowAdquisiciones = () => {
                             onChange={(e)=> setTitulo(e.target.value)}></input>
                         </div>
                         <div className='input-group mb-3'>
-                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
-                            <input type='text' id='descripcion' className='form-control' placeholder='Descripción' value={descripcion}
-                            onChange={(e)=> setDescripcion(e.target.value)}></input>
-                        </div>
-                        <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-dollar-sign'></i></span>
                             <input type='text' id='precio' className='form-control' placeholder='Precio' value={costo}
                             onChange={(e)=> setCosto(e.target.value)}></input>
@@ -538,6 +655,70 @@ const ShowAdquisiciones = () => {
                                 <i className='fa-solid fa-floppy-disk'></i> Guardar
                             </button>
                         </div>
+                    </div>
+                    <div className='modal-footer'>
+                        <button type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id='modalProducts-bibliografias-ver' className='modal fade' aria-hidden='true'>
+            <div className='modal-dialog'>
+                <div className='modal-content'>
+                    <div className='modal-header'>
+                        <label className='h5'>{title}</label>
+                        <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                    </div>
+                    <div className='modal-body'>
+                        <input type='hidden' id='id'></input>
+                   
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='descripcion' className='form-control' placeholder='Descripción' value={descripcion}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='nombreAutor' className='form-control' placeholder='Nombre Autor' value={nombreAutor}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='apellidoAutor' className='form-control' placeholder='Apellido Autor' value={apellidoAutor}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='issn' className='form-control' placeholder='Issn' value={issn}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='isbn' className='form-control' placeholder='Isbn' value={isbn}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='editorial' className='form-control' placeholder='Editorial' value={editorial}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='urlBibliografia' className='form-control' placeholder='Url Bibliografia' value={urlBiliografia}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='titulo' className='form-control' placeholder='Titulo' value={titulo}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-dollar-sign'></i></span>
+                            <input type='text' id='precio' className='form-control' placeholder='Precio' value={costo}
+                            ></input>
+                        </div>
+                                            
+                  
                     </div>
                     <div className='modal-footer'>
                         <button type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>Cerrar</button>
@@ -592,6 +773,55 @@ const ShowAdquisiciones = () => {
                                 <i className='fa-solid fa-floppy-disk'></i> Guardar
                             </button>
                         </div>
+                    </div>
+                    <div className='modal-footer'>
+                        <button type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id='modalProducts-licencias-ver' className='modal fade' aria-hidden='true'>
+            <div className='modal-dialog'>
+                <div className='modal-content'>
+                    <div className='modal-header'>
+                        <label className='h5'>{title}</label>
+                        <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                    </div>
+                    <div className='modal-body'>
+                        <input type='hidden' id='id'></input>
+                
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='descripcion' className='form-control' placeholder='Descripción' value={descripcion}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='numeroRelease' className='form-control' placeholder='Numero Release' value={numeroRelease}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='fabricante' className='form-control' placeholder='Fabricante' value={fabricante}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='version' className='form-control' placeholder='Version' value={version}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <input type='text' id='nombre' className='form-control' placeholder='Nombre' value={nombre}
+                            ></input>
+                        </div>
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-solid fa-dollar-sign'></i></span>
+                            <input type='text' id='precio' className='form-control' placeholder='Precio' value={costo}
+                            ></input>
+                        </div>
+                                 
+                                
                     </div>
                     <div className='modal-footer'>
                         <button type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>Cerrar</button>

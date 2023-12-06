@@ -31,8 +31,8 @@ const ShowFinanciamientos = () => {
     const data = {
         columns: [
             {label: 'Numero', field: 'rowNumber'},
-            {label: 'Monto disponible', field: 'monto'},
             {label: 'Motivo', field: 'motivo'},
+            {label: 'Monto disponible', field: 'monto'},
             {label: 'Fecha de acreditacion', field: 'fecha_acreditacion'},
             {label: 'Seleccionar', field: 'seleccionar'}
           ],
