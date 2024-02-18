@@ -1,42 +1,44 @@
-import React,{useEffect, useState} from 'react';
+import { MDBTabs, MDBTabsItem, MDBTabsLink, MDBTabsContent, MDBTabsPane } from 'mdb-react-ui-kit';
+import { MDBDataTable } from 'mdbreact';
+import React, { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { show_alerta } from '../functions';
-import { useParams } from 'react-router-dom';
-import { MDBTabs, MDBTabsItem, MDBTabsLink} from 'mdb-react-ui-kit';
-import { Link } from 'react-router-dom';
-import { MDBDataTable } from 'mdbreact'; 
 import { apiDeleteAdquisicion, apiGetAdquisiciones, apiGetFinanciamiento, apiPostAdquisicion } from '../axios/axios';
+import { show_alerta } from '../functions';
+import { Equipamientos } from './Equipamientos';
+import { Bibliografias } from './Bibliografias';
+import { Licencias } from './Licencias';
+import { Servicios } from './Servicios';
 
 const ShowAdquisiciones = () => {
     const [effect, setEffect] = useState(false);
     const {idFinanciamiento, motivoFinanciamiento, montoFinanciamiento} = useParams();
     const [selectedOption, setSelectedOption] = useState('servicios');
-    const urlAdquisiciones = `http://localhost:8080/${selectedOption}/financiamiento/${idFinanciamiento}`;
-    const url = `http://localhost:8080/${selectedOption}`
-    const [adquisiciones, setAdquisiciones]= useState([]);
     const [financiamiento, setFinanciamiento]= useState({});
-    const [id, setId]= useState('');
-    const [descripcion, setDescripcion]= useState('');
-    const [tipo, setTipo]= useState('');
-    const [costo, setCosto]= useState('');
-    const [operation, setOperation]= useState(1);
-    const [title, setTitle]= useState('');
-    const [denominacion, setDenominacion]= useState('');
-    const [isbn, setIsbn]=useState('');
-    const [issn, setIssn]=useState('');
-    const [nombreAutor, setNombreAutor]=useState('');
-    const [apellidoAutor, setApellidoAutor]=useState('');
-    const [editorial, setEditorial]=useState('');
-    const [titulo, setTitulo]=useState('');
-    const [urlBiliografia, setUrlBibliografia]=useState('');
-    const [fabricante, setFabricante]=useState('');
-    const [nombre, setNombre]=useState('');
-    const [numeroRelease, setNumeroRelease]=useState('');
-    const [version, setVersion]=useState('');
-    
-    const adquisicionesList = adquisiciones.content || [];
-    const rowsWithRowNumber = adquisicionesList.map((row, index) => ({ ...row, rowNumber: index + 1 }));
+    // const urlAdquisiciones = `http://localhost:8080/${selectedOption}/financiamiento/${idFinanciamiento}`;
+    // const url = `http://localhost:8080/${selectedOption}`
+    // const [adquisiciones, setAdquisiciones]= useState([]);
+    // const [id, setId]= useState('');
+    // const [descripcion, setDescripcion]= useState('');
+    // const [tipo, setTipo]= useState('');
+    // const [costo, setCosto]= useState('');
+    // const [operation, setOperation]= useState(1);
+    // const [title, setTitle]= useState('');
+    // const [denominacion, setDenominacion]= useState('');
+    // const [isbn, setIsbn]=useState('');
+    // const [issn, setIssn]=useState('');
+    // const [nombreAutor, setNombreAutor]=useState('');
+    // const [apellidoAutor, setApellidoAutor]=useState('');
+    // const [editorial, setEditorial]=useState('');
+    // const [titulo, setTitulo]=useState('');
+    // const [urlBiliografia, setUrlBibliografia]=useState('');
+    // const [fabricante, setFabricante]=useState('');
+    // const [nombre, setNombre]=useState('');
+    // const [numeroRelease, setNumeroRelease]=useState('');
+    // const [version, setVersion]=useState('');
+    // const adquisicionesList = adquisiciones.content || [];
+    // const rowsWithRowNumber = adquisicionesList.map((row, index) => ({ ...row, rowNumber: index + 1 }));
 
     const [fillActive, setFillActive] = useState('servicios');
 
@@ -48,342 +50,339 @@ const ShowAdquisiciones = () => {
     setSelectedOption(value)
     setFillActive(value);
     };
-
-
+    
     useEffect(() => {
-        getAdquisiciones();
+        // getAdquisiciones();
         getFinanciamiento();
         setEffect(false);
     }, [selectedOption, effect]);
-
-
-    const getAdquisiciones = async () => {
-        const respuesta = await apiGetAdquisiciones(urlAdquisiciones);
-        setAdquisiciones(respuesta.data);  
-    }
 
     const getFinanciamiento = async () => {
         const respuesta = await apiGetFinanciamiento('http://localhost:8080/fuentes-financiamiento/' + idFinanciamiento);
         setFinanciamiento(respuesta.data);  
     }
 
-    const openModal = (op, id, tipo, descripcion, costo, denominacion, nombreAutor, apellidoAutor, editorial, issn, isbn, titulo, urlBiliografia, numeroRelease, version, fabricante, nombre, selectedOption) =>{
-        setUrlBibliografia('');
-        setTitulo('');
-        setEditorial('');
-        setApellidoAutor('');
-        setIssn('');
-        setIsbn('');
-        setNombreAutor('');
-        setDescripcion('');
-        setCosto('');
-        setOperation(op);
-        setVersion('');
-        setNumeroRelease('');
-        setNombre('');
-        setFabricante('');
-        setDenominacion('');
-        setTipo('');
-        if(op === 1){
-            setTitle('Registrar adquisicion');
-            setId(idFinanciamiento);  
-            setDescripcion('');
-            setCosto('');
+    // const getAdquisiciones = async () => {
+    //     const respuesta = await apiGetAdquisiciones(urlAdquisiciones);
+    //     setAdquisiciones(respuesta.data);  
+    // }
 
-            if(selectedOption === 'servicios'){
-                setTipo('');
-            }
-            else if(selectedOption === 'equipamientos'){
-                setDenominacion('');
-            }
-            else if(selectedOption === 'licencias'){
-                setVersion('');
-                setNumeroRelease('');
-                setNombre('');
-                setFabricante('');
-            }
-            else if(selectedOption === 'bibliografias'){
-                setUrlBibliografia('');
-                setTitulo('');
-                setEditorial('');
-                setApellidoAutor('');
-                setIssn('');
-                setIsbn('');
-                setNombreAutor('');
-            }
+
+    // const openModal = (op, id, tipo, descripcion, costo, denominacion, nombreAutor, apellidoAutor, editorial, issn, isbn, titulo, urlBiliografia, numeroRelease, version, fabricante, nombre, selectedOption) =>{
+    //     setUrlBibliografia('');
+    //     setTitulo('');
+    //     setEditorial('');
+    //     setApellidoAutor('');
+    //     setIssn('');
+    //     setIsbn('');
+    //     setNombreAutor('');
+    //     setDescripcion('');
+    //     setCosto('');
+    //     setOperation(op);
+    //     setVersion('');
+    //     setNumeroRelease('');
+    //     setNombre('');
+    //     setFabricante('');
+    //     setDenominacion('');
+    //     setTipo('');
+    //     if(op === 1){
+    //         setTitle('Registrar adquisicion');
+    //         setId(idFinanciamiento);  
+    //         setDescripcion('');
+    //         setCosto('');
+
+    //         if(selectedOption === 'servicios'){
+    //             setTipo('');
+    //         }
+    //         else if(selectedOption === 'equipamientos'){
+    //             setDenominacion('');
+    //         }
+    //         else if(selectedOption === 'licencias'){
+    //             setVersion('');
+    //             setNumeroRelease('');
+    //             setNombre('');
+    //             setFabricante('');
+    //         }
+    //         else if(selectedOption === 'bibliografias'){
+    //             setUrlBibliografia('');
+    //             setTitulo('');
+    //             setEditorial('');
+    //             setApellidoAutor('');
+    //             setIssn('');
+    //             setIsbn('');
+    //             setNombreAutor('');
+    //         }
             
-        }
-        else if(op === 2){
-            setTitle('Editar adquisicion');
-            setId(id);
-            setDescripcion(descripcion);
-            setCosto(costo);
-            if(selectedOption === 'servicios'){
-                setTipo(tipo);
-            }
-            else if(selectedOption === 'equipamientos'){
-                setDenominacion(denominacion);
-            }
-            else if(selectedOption === 'licencias'){
-                setVersion(version);
-                setNumeroRelease(numeroRelease);
-                setNombre(nombre);
-                setFabricante(fabricante);
-            }
-            else if(selectedOption === 'bibliografias'){
-                setUrlBibliografia(urlBiliografia);
-                setTitulo(titulo);
-                setEditorial(editorial);
-                setApellidoAutor(apellidoAutor);
-                setIssn(issn);
-                setIsbn(isbn);
-                setNombreAutor(nombreAutor);
-            }
+    //     }
+    //     else if(op === 2){
+    //         setTitle('Editar adquisicion');
+    //         setId(id);
+    //         setDescripcion(descripcion);
+    //         setCosto(costo);
+    //         if(selectedOption === 'servicios'){
+    //             setTipo(tipo);
+    //         }
+    //         else if(selectedOption === 'equipamientos'){
+    //             setDenominacion(denominacion);
+    //         }
+    //         else if(selectedOption === 'licencias'){
+    //             setVersion(version);
+    //             setNumeroRelease(numeroRelease);
+    //             setNombre(nombre);
+    //             setFabricante(fabricante);
+    //         }
+    //         else if(selectedOption === 'bibliografias'){
+    //             setUrlBibliografia(urlBiliografia);
+    //             setTitulo(titulo);
+    //             setEditorial(editorial);
+    //             setApellidoAutor(apellidoAutor);
+    //             setIssn(issn);
+    //             setIsbn(isbn);
+    //             setNombreAutor(nombreAutor);
+    //         }
   
-        }
+    //     }
         
-        else if(op === 3){
-            setTitle('Detalles de la adquisicion');
-            setId(id);
-            setDescripcion(descripcion);
-            setCosto(costo);
-            if(selectedOption === 'servicios'){
-                setTipo(tipo);
-            }
-            else if(selectedOption === 'equipamientos'){
-                setDenominacion(denominacion);
-            }
-            else if(selectedOption === 'licencias'){
-                setVersion(version);
-                setNumeroRelease(numeroRelease);
-                setNombre(nombre);
-                setFabricante(fabricante);
-            }
-            else if(selectedOption === 'bibliografias'){
-                setUrlBibliografia(urlBiliografia);
-                setTitulo(titulo);
-                setEditorial(editorial);
-                setApellidoAutor(apellidoAutor);
-                setIssn(issn);
-                setIsbn(isbn);
-                setNombreAutor(nombreAutor);
-            }
+    //     else if(op === 3){
+    //         setTitle('Detalles de la adquisicion');
+    //         setId(id);
+    //         setDescripcion(descripcion);
+    //         setCosto(costo);
+    //         if(selectedOption === 'servicios'){
+    //             setTipo(tipo);
+    //         }
+    //         else if(selectedOption === 'equipamientos'){
+    //             setDenominacion(denominacion);
+    //         }
+    //         else if(selectedOption === 'licencias'){
+    //             setVersion(version);
+    //             setNumeroRelease(numeroRelease);
+    //             setNombre(nombre);
+    //             setFabricante(fabricante);
+    //         }
+    //         else if(selectedOption === 'bibliografias'){
+    //             setUrlBibliografia(urlBiliografia);
+    //             setTitulo(titulo);
+    //             setEditorial(editorial);
+    //             setApellidoAutor(apellidoAutor);
+    //             setIssn(issn);
+    //             setIsbn(isbn);
+    //             setNombreAutor(nombreAutor);
+    //         }
   
-        }
-       
-        
-        // window.setTimeout(function(){
-        //     document.getElementById('descripcion').focus();
-        // },500);
+    //     }       
+    //     // window.setTimeout(function(){
+    //     //     document.getElementById('descripcion').focus();
+    //     // },500);
+    // }
+
+    // const validarServicio = () => {
+    //     var parametros;
+    //     var metodo;
+    //     if(descripcion.trim() === ''){
+    //         show_alerta('Escriba la descripcion de la adquisicion','warning');
+    //     }
+    //     else if(costo === ''){
+    //         show_alerta('Escriba el precio de la adquisicion','warning');
+    //     }
+    //     else{
+    //         if(operation === 1){
+    //             parametros= {tipo:tipo.trim(),descripcion: descripcion.trim(),costo:costo};
+    //             metodo= 'POST';
+    //         }
+    //         else{
+    //             parametros={id:id,tipo:tipo.trim(),descripcion: descripcion.trim(),costo:costo};
+    //             metodo= 'PUT';
+    //         }
+    //         enviarSolicitud(metodo,parametros);
+    //     }
+    // }
+
+    // const validarLicencia = () => {
+    //     var parametros;
+    //     var metodo;
+    //     if(descripcion.trim() === ''){
+    //         show_alerta('Escriba la descripcion de la adquisicion','warning');
+    //     }
+    //     else if(costo === ''){
+    //         show_alerta('Escriba el precio de la adquisicion','warning');
+    //     }
+    //     else{
+    //         if(operation === 1){
+    //             parametros= {fabricante:fabricante.trim(),version:version.trim(),nombre:nombre.trim(),numero_release:numeroRelease.trim(),descripcion: descripcion.trim(),costo:costo};
+    //             metodo= 'POST';
+    //         }
+    //         else{
+    //             parametros={id:id,fabricante:fabricante.trim(),version:version.trim(),nombre:nombre.trim(),numero_release:numeroRelease.trim(),descripcion: descripcion.trim(),costo:costo};
+    //             metodo= 'PUT';
+    //         }
+    //         enviarSolicitud(metodo,parametros);
+    //     }
+    // }
+
+    // const validarEquipamiento = () => {
+    //     var parametros;
+    //     var metodo;
+    //     if(descripcion.trim() === ''){
+    //         show_alerta('Escriba la descripcion de la adquisicion','warning');
+    //     }
+    //     else if(costo === ''){
+    //         show_alerta('Escriba el precio de la adquisicion','warning');
+    //     }
+    //     else{
+    //         if(operation === 1){
+    //             parametros= {denominacion:denominacion.trim(),descripcion: descripcion.trim(),costo:costo};
+    //             metodo= 'POST';
+    //         }
+    //         else{
+    //             parametros={id:id,denominacion:denominacion.trim(),descripcion: descripcion.trim(),costo:costo};
+    //             metodo= 'PUT';
+    //         }
+    //         enviarSolicitud(metodo,parametros);
+    //     }
+    // }
+
+    // const validarBibliografia = () => {
+    //     var parametros;
+    //     var metodo;
+    //     if(descripcion.trim() === ''){
+    //         show_alerta('Escriba la descripcion de la adquisicion','warning');
+    //     }
+    //     else if(costo === ''){
+    //         show_alerta('Escriba el precio de la adquisicion','warning');
+    //     }
+    //     else{
+    //         if(operation === 1){
+    //             parametros= {editorial:editorial.trim(),nombre_autor:nombreAutor.trim(),apellido_autor:apellidoAutor.trim(),isbn:isbn.trim(),issn:issn.trim(),titulo:titulo.trim(),url:urlBiliografia.trim(),descripcion: descripcion.trim(),costo:costo};
+    //             metodo= 'POST';
+    //         }
+    //         else{
+    //             parametros={id:id,editorial:editorial.trim(),nombre_autor:nombreAutor.trim(),apellido_autor:apellidoAutor.trim(),isbn:isbn.trim(),issn:issn.trim(),titulo:titulo.trim(),url:urlBiliografia.trim(),descripcion: descripcion.trim(),costo:costo};
+    //             metodo= 'PUT';
+    //         }
+    //         enviarSolicitud(metodo,parametros);
+    //     }
+    // }
+
+    // const enviarSolicitud = async(metodo, parametros) => {
+    //     await apiPostAdquisicion({ method: metodo, url: `${url}/${id}`, data: parametros }).then((respuesta) => {
+    //         console.log(respuesta)
+    //         show_alerta(metodo==='POST'? 'Adquisicion agregada' : 'Adquisicion modificada', tipo);
+    //         if(tipo === 'success'){
+    //             document.getElementById('btnCerrar').click();
+    //             getAdquisiciones();
+    //         }
+    //         setEffect(true);
+    //     })
+    //     .catch(function(error){
+    //         show_alerta('Error en la solicitud','error');
+    //         console.log(error);
+    //     });
+    // }
+
+    // const deleteProduct = (adquisicion) => {
+    //     const MySwal = withReactContent(Swal);
+    //     MySwal.fire({
+    //         title:'¿Esta seguro que desea eliminar la adquisicion?',
+    //         icon: 'question',text:'No se podrá dar marcha atrás',
+    //         showCancelButton:true,confirmButtonText:'Si, eliminar',cancelButtonText:'Cancelar'
+    //     }).then(async (result) => {
+    //         if(result.isConfirmed) {
+    //             await apiDeleteAdquisicion(url, adquisicion.id);
+    //             setEffect(true);
+    //         } else {
+    //             show_alerta('La adquisicion no fue eliminada','info');
+    //         }
+    //     });
+    // }
 
     
-    }
+    // const data = {
+    //     columns: [
+    //         {label: 'Numero', field: 'rowNumber'},
+    //         {label: 'Descripcion', field: 'descripcion'},
+    //         {label: 'Precio', field: 'costo'},
+    //         {label: 'Acciones', field: 'acciones'}
+            
+    //       ],
+    //     rows: []
+    // };
 
-    const validarServicio = () => {
-        var parametros;
-        var metodo;
-        if(descripcion.trim() === ''){
-            show_alerta('Escriba la descripcion de la adquisicion','warning');
-        }
-        else if(costo === ''){
-            show_alerta('Escriba el precio de la adquisicion','warning');
-        }
-        else{
-            if(operation === 1){
-                parametros= {tipo:tipo.trim(),descripcion: descripcion.trim(),costo:costo};
-                metodo= 'POST';
-            }
-            else{
-                parametros={id:id,tipo:tipo.trim(),descripcion: descripcion.trim(),costo:costo};
-                metodo= 'PUT';
-            }
-            enviarSolicitud(metodo,parametros);
-        }
-    }
-
-    const validarLicencia = () => {
-        var parametros;
-        var metodo;
-        if(descripcion.trim() === ''){
-            show_alerta('Escriba la descripcion de la adquisicion','warning');
-        }
-        else if(costo === ''){
-            show_alerta('Escriba el precio de la adquisicion','warning');
-        }
-        else{
-            if(operation === 1){
-                parametros= {fabricante:fabricante.trim(),version:version.trim(),nombre:nombre.trim(),numero_release:numeroRelease.trim(),descripcion: descripcion.trim(),costo:costo};
-                metodo= 'POST';
-            }
-            else{
-                parametros={id:id,fabricante:fabricante.trim(),version:version.trim(),nombre:nombre.trim(),numero_release:numeroRelease.trim(),descripcion: descripcion.trim(),costo:costo};
-                metodo= 'PUT';
-            }
-            enviarSolicitud(metodo,parametros);
-        }
-    }
-
-    const validarEquipamiento = () => {
-        var parametros;
-        var metodo;
-        if(descripcion.trim() === ''){
-            show_alerta('Escriba la descripcion de la adquisicion','warning');
-        }
-        else if(costo === ''){
-            show_alerta('Escriba el precio de la adquisicion','warning');
-        }
-        else{
-            if(operation === 1){
-                parametros= {denominacion:denominacion.trim(),descripcion: descripcion.trim(),costo:costo};
-                metodo= 'POST';
-            }
-            else{
-                parametros={id:id,denominacion:denominacion.trim(),descripcion: descripcion.trim(),costo:costo};
-                metodo= 'PUT';
-            }
-            enviarSolicitud(metodo,parametros);
-        }
-    }
-
-    const validarBibliografia = () => {
-        var parametros;
-        var metodo;
-        if(descripcion.trim() === ''){
-            show_alerta('Escriba la descripcion de la adquisicion','warning');
-        }
-        else if(costo === ''){
-            show_alerta('Escriba el precio de la adquisicion','warning');
-        }
-        else{
-            if(operation === 1){
-                parametros= {editorial:editorial.trim(),nombre_autor:nombreAutor.trim(),apellido_autor:apellidoAutor.trim(),isbn:isbn.trim(),issn:issn.trim(),titulo:titulo.trim(),url:urlBiliografia.trim(),descripcion: descripcion.trim(),costo:costo};
-                metodo= 'POST';
-            }
-            else{
-                parametros={id:id,editorial:editorial.trim(),nombre_autor:nombreAutor.trim(),apellido_autor:apellidoAutor.trim(),isbn:isbn.trim(),issn:issn.trim(),titulo:titulo.trim(),url:urlBiliografia.trim(),descripcion: descripcion.trim(),costo:costo};
-                metodo= 'PUT';
-            }
-            enviarSolicitud(metodo,parametros);
-        }
-    }
-
-    const enviarSolicitud = async(metodo, parametros) => {
-        await apiPostAdquisicion({ method: metodo, url: `${url}/${id}`, data: parametros }).then((respuesta) => {
-            console.log(respuesta)
-            show_alerta(metodo==='POST'? 'Adquisicion agregada' : 'Adquisicion modificada', tipo);
-            if(tipo === 'success'){
-                document.getElementById('btnCerrar').click();
-                getAdquisiciones();
-            }
-            setEffect(true);
-        })
-        .catch(function(error){
-            show_alerta('Error en la solicitud','error');
-            console.log(error);
-        });
-    }
-
-    const deleteProduct = (adquisicion) => {
-        const MySwal = withReactContent(Swal);
-        MySwal.fire({
-            title:'¿Esta seguro que desea eliminar la adquisicion?',
-            icon: 'question',text:'No se podrá dar marcha atrás',
-            showCancelButton:true,confirmButtonText:'Si, eliminar',cancelButtonText:'Cancelar'
-        }).then(async (result) => {
-            if(result.isConfirmed) {
-                await apiDeleteAdquisicion(url, adquisicion.id);
-                setEffect(true);
-            } else {
-                show_alerta('La adquisicion no fue eliminada','info');
-            }
-        });
-    }
-
-    
-    const data = {
-        columns: [
-            {label: 'Numero', field: 'rowNumber'},
-            {label: 'Descripcion', field: 'descripcion'},
-            {label: 'Precio', field: 'costo'},
-            {label: 'Acciones', field: 'acciones'}
-          ],
-        rows: []
-    };
-
-    rowsWithRowNumber.forEach(adquisicion => {
-        data.rows.push({
-            rowNumber: adquisicion.rowNumber,
-            descripcion: adquisicion.descripcion,
-            costo: adquisicion.costo,
-            acciones: (    
-            <td >
-                <button onClick={() => openModal(
-                    3,
-                    adquisicion.id,
-                    adquisicion.tipo,
-                    adquisicion.descripcion,
-                    adquisicion.costo,
-                    adquisicion.denominacion,
-                    adquisicion.nombre_autor,
-                    adquisicion.apellido_autor,
-                    adquisicion.editorial,
-                    adquisicion.issn,
-                    adquisicion.isbn,
-                    adquisicion.titulo,
-                    adquisicion.url,
-                    adquisicion.numero_release,
-                    adquisicion.version,
-                    adquisicion.fabricante,
-                    adquisicion.nombre,
-                    selectedOption
-                    )}
-                     className='btn btn-secondary' data-bs-toggle='modal' data-bs-target={`#modalProducts-${selectedOption}-ver`}>
-                    <i className='fa-solid fa-eye'></i>
-                </button>
-                &nbsp; 
-                <button onClick={() => openModal(
-                    2,
-                    adquisicion.id,
-                    adquisicion.tipo,
-                    adquisicion.descripcion,
-                    adquisicion.costo,
-                    adquisicion.denominacion,
-                    adquisicion.nombre_autor,
-                    adquisicion.apellido_autor,
-                    adquisicion.editorial,
-                    adquisicion.issn,
-                    adquisicion.isbn,
-                    adquisicion.titulo,
-                    adquisicion.url,
-                    adquisicion.numero_release,
-                    adquisicion.version,
-                    adquisicion.fabricante,
-                    adquisicion.nombre,
-                    selectedOption
-                    )}
-                     className='btn btn-warning' data-bs-toggle='modal' data-bs-target={`#modalProducts-${selectedOption}`}>
-                    <i className='fa-solid fa-edit'></i>
-                </button>
-                &nbsp; 
-                <button onClick={() => deleteProduct(adquisicion)} className='btn btn-danger'>
-                    <i className='fa-solid fa-trash'></i>
-                </button>    
-            </td>)
-        })
-    });
+    // rowsWithRowNumber.forEach(adquisicion => {
+    //     data.rows.push({
+    //         rowNumber: adquisicion.rowNumber,
+    //         descripcion: adquisicion.descripcion,
+    //         costo: adquisicion.costo,
+    //         acciones: (    
+    //         <td >
+    //             <button onClick={() => openModal(
+    //                 3,
+    //                 adquisicion.id,
+    //                 adquisicion.tipo,
+    //                 adquisicion.descripcion,
+    //                 adquisicion.costo,
+    //                 adquisicion.denominacion,
+    //                 adquisicion.nombre_autor,
+    //                 adquisicion.apellido_autor,
+    //                 adquisicion.editorial,
+    //                 adquisicion.issn,
+    //                 adquisicion.isbn,
+    //                 adquisicion.titulo,
+    //                 adquisicion.url,
+    //                 adquisicion.numero_release,
+    //                 adquisicion.version,
+    //                 adquisicion.fabricante,
+    //                 adquisicion.nombre,
+    //                 selectedOption
+    //                 )}
+    //                  className='btn btn-secondary' data-bs-toggle='modal' data-bs-target={`#modalProducts-${selectedOption}-ver`}>
+    //                 <i className='fa-solid fa-eye'></i>
+    //             </button>
+    //             &nbsp; 
+    //             <button onClick={() => openModal(
+    //                 2,
+    //                 adquisicion.id,
+    //                 adquisicion.tipo,
+    //                 adquisicion.descripcion,
+    //                 adquisicion.costo,
+    //                 adquisicion.denominacion,
+    //                 adquisicion.nombre_autor,
+    //                 adquisicion.apellido_autor,
+    //                 adquisicion.editorial,
+    //                 adquisicion.issn,
+    //                 adquisicion.isbn,
+    //                 adquisicion.titulo,
+    //                 adquisicion.url,
+    //                 adquisicion.numero_release,
+    //                 adquisicion.version,
+    //                 adquisicion.fabricante,
+    //                 adquisicion.nombre,
+    //                 selectedOption
+    //                 )}
+    //                  className='btn btn-warning' data-bs-toggle='modal' data-bs-target={`#modalProducts-${selectedOption}`}>
+    //                 <i className='fa-solid fa-pen'></i>
+    //             </button>
+    //             &nbsp; 
+    //             <button onClick={() => deleteProduct(adquisicion)} className='btn btn-danger'>
+    //                 <i className='fa-solid fa-trash'></i>
+    //             </button>    
+    //         </td>)
+    //     })
+    // });
 
 
   return (
     <div className='App'>
-         <h1 className='col-0 col-lg-12 offset-0 offset-lg-0 d-grid justify-items-start fw-lighter' style={{ fontSize: '18px', color: 'Dimgrey', textAlign: 'left', marginBottom: "20px" }}>
+
+        <h1 className='col-0 col-lg-12 offset-0 offset-lg-0 d-grid justify-items-start fw-lighter' style={{ fontSize: '18px', color: 'Dimgrey', textAlign: 'left', marginBottom: "20px" }}>
             <th >
             Fuente de financiamiento: <span className="fw-lighter">{motivoFinanciamiento}</span> 
             </th> 
             <th>
             Monto disponible: $<span className="fw-lighter">{financiamiento.monto}</span>
-            </th>     
-                     
+            </th>                  
         </h1>
+
         <div className='col-0 col-lg-10 offset-0 offset-lg-1'>
         <MDBTabs pills className='mb-3' fill nav-link-disabled-color style={{ fontSize: '16px', fontWeight: 'bold', color: 'blue' }}>
             <MDBTabsItem>
@@ -391,7 +390,6 @@ const ShowAdquisiciones = () => {
                     Servicios
                 </MDBTabsLink>
             </MDBTabsItem>
-           
             <MDBTabsItem>
                 <MDBTabsLink onClick={() => handleFillClick('equipamientos')} active={fillActive === 'equipamientos'}>
                     Equipamientos
@@ -408,15 +406,23 @@ const ShowAdquisiciones = () => {
                 </MDBTabsLink>
             </MDBTabsItem>
         </MDBTabs>
-        
         </div>
+
+        <MDBTabsContent >
+                <MDBTabsPane open={fillActive === 'servicios'}><Servicios actualizarFinanciamiento={setEffect} /></MDBTabsPane>
+                <MDBTabsPane open={fillActive === 'equipamientos'}><Equipamientos actualizarFinanciamiento={setEffect} /></MDBTabsPane>
+                <MDBTabsPane open={fillActive === 'bibliografias'}><Bibliografias actualizarFinanciamiento={setEffect} /></MDBTabsPane>
+                <MDBTabsPane open={fillActive === 'licencias'}><Licencias actualizarFinanciamiento={setEffect} /></MDBTabsPane>
+        </MDBTabsContent>
         
+        
+{/*         
         <div className='row mt-3'>
             <div className='col-lg-10 offset-lg-1'>
             <MDBDataTable 
              hover
              data={data}
-             // striped
+             striped
              entriesOptions={[5, 10, 20, 50]} 
              entries={5} 
              small
@@ -439,17 +445,6 @@ const ShowAdquisiciones = () => {
             </div>
 
             </div>
-
-            {/* <div className='container-fluid'>
-            <div className='col-md-3 offset-md-8'>
-                <div className='d-grid mx-auto'>
-                    <button onClick={()=> openModal(1)} className='btn btn-dark' data-bs-toggle='modal' data-bs-target={`#modalProducts-${selectedOption}`}>
-                        <i className='fa-solid fa-circle-plus'>
-                        </i> Agregar
-                    </button>
-                </div>
-            </div>
-            </div> */}
 
         </div>
         <div id='modalProducts-servicios-ver' className='modal fade' aria-hidden='true'>
@@ -828,7 +823,7 @@ const ShowAdquisiciones = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div> */}
     </div>
   )
 }

@@ -1,26 +1,26 @@
-import Keycloak from 'keycloak-js';
-import keycloakConfig from './keycloakConfig';
+// import Keycloak from 'keycloak-js';
+// import keycloakConfig from './keycloakConfig';
 
-const keycloak = new Keycloak(keycloakConfig);
-let keycloakToken = null;
+// const keycloak = new Keycloak(keycloakConfig);
+// let keycloakToken = null;
 
-const initKeycloak = async () => {
-  try {
-    await keycloak.init({ onLoad: 'login-required', pkceMethod: 'S256'}).then((auth) =>{
-        if (!auth){
-            window.location.reload();
-        }
-        else{
-            console.log('Keycloak initialized');
-            console.log(keycloak.token);  
-            keycloakToken=keycloak.token; 
-        }
-    }
-    );
-  } catch (error) {
-    console.error('Error initializing Keycloak:', error);
+// const initKeycloak = async () => {
+//   try {
+//     await keycloak.init({ onLoad: 'login-required', pkceMethod: 'S256'}).then((auth) =>{
+//         if (!auth){
+//             window.location.reload();
+//         }
+//         else{
+//             console.log('Keycloak initialized');
+//             console.log(keycloak.token);  
+//             keycloakToken=keycloak.token; 
+//         }
+//     }
+//     );
+//   } catch (error) {
+//     console.error('Error initializing Keycloak:', error);
     
-  }
-};
+//   }
+// };
 
-export { keycloak, initKeycloak, keycloakToken };
+// export { keycloak, initKeycloak, keycloakToken };

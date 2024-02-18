@@ -9,7 +9,9 @@ import { MDBDataTable } from 'mdbreact';
 import { keycloak } from '../keycloak';
 import { apiGetFinancimientos } from '../axios/axios';
 import { useToken } from '../hooks/TokenProvider';
-
+// import 'mdbreact/dist/css/mdb.css';
+// import 'bootstrap-css-only/css/bootstrap.min.css';
+// import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const ShowFinanciamientos = () => {
     const [financiamientos, setFinanciamientos] = useState([]);
