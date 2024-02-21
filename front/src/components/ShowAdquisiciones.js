@@ -43,10 +43,9 @@ const ShowAdquisiciones = () => {
     const [fillActive, setFillActive] = useState('servicios');
 
     const handleFillClick = (value) => {
-    if (value === fillActive) {
-        return;
-    }
-
+        if (value === fillActive) {
+            return;
+        }
     setSelectedOption(value)
     setFillActive(value);
     };
@@ -373,7 +372,6 @@ const ShowAdquisiciones = () => {
 
   return (
     <div className='App'>
-
         <h1 className='col-0 col-lg-12 offset-0 offset-lg-0 d-grid justify-items-start fw-lighter' style={{ fontSize: '18px', color: 'Dimgrey', textAlign: 'left', marginBottom: "20px" }}>
             <th >
             Fuente de financiamiento: <span className="fw-lighter">{motivoFinanciamiento}</span> 
@@ -382,7 +380,6 @@ const ShowAdquisiciones = () => {
             Monto disponible: $<span className="fw-lighter">{financiamiento.monto}</span>
             </th>                  
         </h1>
-
         <div className='col-0 col-lg-10 offset-0 offset-lg-1'>
         <MDBTabs pills className='mb-3' fill nav-link-disabled-color style={{ fontSize: '16px', fontWeight: 'bold', color: 'blue' }}>
             <MDBTabsItem>
@@ -407,7 +404,6 @@ const ShowAdquisiciones = () => {
             </MDBTabsItem>
         </MDBTabs>
         </div>
-
         <MDBTabsContent >
                 <MDBTabsPane open={fillActive === 'servicios'}><Servicios actualizarFinanciamiento={setEffect} /></MDBTabsPane>
                 <MDBTabsPane open={fillActive === 'equipamientos'}><Equipamientos actualizarFinanciamiento={setEffect} /></MDBTabsPane>

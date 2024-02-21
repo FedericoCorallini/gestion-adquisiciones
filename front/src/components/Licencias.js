@@ -1,11 +1,13 @@
-
 import { MDBDataTable } from 'mdbreact';
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { apiDeleteAdquisicion, apiGetAdquisiciones, apiGetFinanciamiento, apiPostAdquisicion } from '../axios/axios';
+import { apiDeleteAdquisicion, apiGetAdquisiciones, apiPostAdquisicion } from '../axios/axios';
 import { show_alerta } from '../functions';
+import { format } from 'date-fns';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export const Licencias = ({ actualizarFinanciamiento }) => {
     const [effect, setEffect] = useState(false);
@@ -25,7 +27,11 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
     const [fechaVencimiento, setFechaVencimiento]=useState('');
     const [fechaOtorgamiento, setFechaOtorgamiento]=useState('');
     const [version, setVersion]=useState('');
-    const [tipo, setTipo]= useState('');
+    const [costoError, setCostoError] = useState('');
+    const [descripcionError, setDescripcionError] = useState('');
+    const [vencimientoError, setVencimientoError] = useState('');
+    const [otorgamientoError, setOtorgamientoError] = useState('');
+    const [anioError, setAnioError] = useState('');
     
     const adquisicionesList = adquisiciones.content || [];
     const rowsWithRowNumber = adquisicionesList.map((row, index) => ({ ...row, rowNumber: index + 1 }));
@@ -40,8 +46,7 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
         setAdquisiciones(respuesta.data);  
     }
 
-    const openModal = (op, id, descripcion, costo, numeroRelease, version, fabricante, nombre, anio, fechaOtorgamiento, fechaVencimiento) =>{
-    
+    const openModal = (op, id, descripcion, costo, numeroRelease, version, fabricante, nombre, anio, fechaOtorgamiento, fechaVencimiento) =>{  
         setDescripcion('');
         setCosto('')
         setOperation(op);
@@ -52,8 +57,9 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
         setFechaOtorgamiento('');
         setFechaVencimiento('');
         setAnio('');
+
         if(op === 1){
-            setTitle('Registrar adquisicion');
+            setTitle('Registrar licencia');
             setId(idFinanciamiento);  
             setDescripcion('');
             setCosto('');
@@ -66,7 +72,7 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
             setAnio('');
         }
         else if(op === 2){
-            setTitle('Editar adquisicion');
+            setTitle('Editar licencia');
             setId(id);
             setDescripcion(descripcion);
             setCosto(costo);
@@ -77,10 +83,9 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
             setFechaOtorgamiento(fechaOtorgamiento);
             setFechaVencimiento(fechaVencimiento);
             setAnio(anio);
-        }
-        
+        }       
         else if(op === 3){
-            setTitle('Detalles de la adquisicion');
+            setTitle('Detalles de licencia');
             setId(id);
             setDescripcion(descripcion);
             setCosto(costo);
@@ -93,16 +98,42 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
             setAnio(anio);
         }
     }
+
+    const limpiarErrores = () => {
+        setCostoError('');
+        setDescripcionError('');
+        setOtorgamientoError('');
+        setVencimientoError('');
+        setAnioError('');
+    }
+
     const validarLicencia = () => {
         var parametros;
         var metodo;
+        var enviar = true;
+        limpiarErrores();
+        
         if(descripcion.trim() === ''){
-            show_alerta('Escriba la descripcion de la adquisicion','warning');
+            setDescripcionError('La descripcion es obligatoria');
+            enviar = false;
         }
-        else if(costo === ''){
-            show_alerta('Escriba el precio de la adquisicion','warning');
+        if(isNaN(Number(costo)) || (Number(costo)) <= 0){
+            setCostoError('El precio debe ser un numero mayor a cero');
+            enviar = false;
         }
-        else{
+        if(anio === null || anio === ''){
+            setAnioError('Debe seleccionar el año');
+            enviar = false;
+        }
+        if(fechaOtorgamiento === null || fechaOtorgamiento === ''){
+            setOtorgamientoError('Debe seleccionar una fecha de otorgamiento');
+            enviar = false;
+        }
+        if(fechaVencimiento === null || fechaVencimiento === ''){
+            setVencimientoError('Debe seleccionar una fecha de vencimiento');
+            enviar = false;
+        }
+        if (enviar) {
             if(operation === 1){
                 parametros= {
                     fabricante:fabricante.trim(),
@@ -110,10 +141,10 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
                     nombre:nombre.trim(),
                     numero_release:numeroRelease.trim(),
                     descripcion: descripcion.trim(),
-                    anio: anio,
-                    fecha_otorgamiento: fechaOtorgamiento,
-                    fecha_vencimiento: fechaVencimiento,
-                    costo:costo,};
+                    anio: format(anio, 'yyyy-MM-dd'),
+                    fecha_otorgamiento: format(fechaOtorgamiento, 'yyyy-MM-dd'),
+                    fecha_vencimiento: format(fechaVencimiento, 'yyyy-MM-dd'),
+                    costo:costo};
                 metodo= 'POST';
             }
             else{
@@ -123,9 +154,9 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
                     nombre:nombre.trim(),
                     numero_release:numeroRelease.trim(),
                     descripcion: descripcion.trim(),
-                    anio: anio,
-                    fecha_otorgamiento: fechaOtorgamiento,
-                    fecha_vencimiento: fechaVencimiento,
+                    anio: format(anio, 'yyyy-MM-dd'),
+                    fecha_otorgamiento: format(fechaOtorgamiento, 'yyyy-MM-dd'),
+                    fecha_vencimiento: format(fechaVencimiento, 'yyyy-MM-dd'),
                     costo:costo};
                 metodo= 'PUT';
             }
@@ -133,22 +164,14 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
         }
     }
 
-
-
-
     const enviarSolicitud = async(metodo, parametros) => {
         await apiPostAdquisicion({ method: metodo, url: `${url}/${id}`, data: parametros }).then((respuesta) => {
-            console.log(respuesta)
-            show_alerta(metodo==='POST'? 'Adquisicion agregada' : 'Adquisicion modificada', tipo);
-            if(tipo === 'success'){
-                document.getElementById('btnCerrar').click();
-                getAdquisiciones();
-            }
+            show_alerta(metodo==='POST'? 'Adquisicion agregada' : 'Adquisicion modificada', 'success');
             setEffect(true);
             actualizarFinanciamiento(true);
         })
         .catch(function(error){
-            show_alerta('Error en la solicitud','error');
+            show_alerta(error.response.data.message,'error');
             console.log(error);
         });
     }
@@ -162,6 +185,7 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
         }).then(async (result) => {
             if(result.isConfirmed) {
                 await apiDeleteAdquisicion(url, adquisicion.id);
+                show_alerta('La adquisicion fue eliminada','success');
                 setEffect(true);
                 actualizarFinanciamiento(true);
             } else {
@@ -169,7 +193,6 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
             }
         });
     }
-
     
     const data = {
         columns: [
@@ -179,8 +202,10 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
             {label: 'Version', field: 'version'},
             {label: 'Release', field: 'release'},
             {label: 'Fabricante', field: 'fabricante'},
-            {label: 'Acciones', field: 'acciones'}
-            
+            {label: 'Año', field: 'anio'},
+            {label: 'Otorgamiento', field: 'fechaOtorgamiento'},
+            {label: 'Vencimiento', field: 'fechaVencimiento'},
+            {label: 'Acciones', field: 'acciones'}           
           ],
         rows: []
     };
@@ -193,6 +218,9 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
             version: adquisicion.version,
             release: adquisicion.numero_release,
             fabricante: adquisicion.fabricante,
+            anio: adquisicion.anio.substring(0,4),
+            fechaOtorgamiento: adquisicion.fecha_otorgamiento,
+            fechaVencimiento: adquisicion.fecha_vencimiento,
             acciones: (    
             <td >
                 <button onClick={() => openModal(
@@ -250,18 +278,17 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
              selectRows={true}
             >
             </MDBDataTable>
-            <div>            
-                <Link to={"/index"} className="col-md-1 offset-md-0 btn btn-dark">
-                    <i className="fa fa-arrow-left"></i>
-                </Link>      
+                <div>            
+                    <Link to={"/index"} className="col-md-1 offset-md-0 btn btn-dark">
+                        <i className="fa fa-arrow-left"></i>
+                    </Link>      
                     <button onClick={()=> openModal(1)} className='col-md-3 offset-md-8 btn btn-success' data-bs-toggle='modal' data-bs-target={'#modalProducts-licencias'}>
                         <i className='fa-solid fa-circle-plus'>
                         </i> Agregar
-                </button>    
+                    </button>    
+                </div>
             </div>
-        </div>
-        </div>
-        
+        </div>       
         <div id='modalProducts-licencias' className='modal fade' aria-hidden='true'>
             <div className='modal-dialog'>
                 <div className='modal-content'>
@@ -274,9 +301,10 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
                 
                         <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
-                            <input type='text' id='descripcion' className='form-control' placeholder='Descripción' value={descripcion}
+                            <input type='text' id='descripcion' className={`form-control ${descripcionError ? 'is-invalid' : ''}`} placeholder='Descripción' value={descripcion}
                             onChange={(e)=> setDescripcion(e.target.value)}></input>
                         </div>
+                        {descripcionError && <div className="error-message" style={{ marginBottom: '10px', color: 'red' }}>{descripcionError}</div>}
                         <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
                             <input type='text' id='numeroRelease' className='form-control' placeholder='Numero Release' value={numeroRelease}
@@ -298,26 +326,48 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
                             onChange={(e)=> setNombre(e.target.value)}></input>
                         </div>
                         <div className='input-group mb-3'>
-                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
-                            <input type='text' id='anio' className='form-control' placeholder='Año' value={anio || '' }
-                            onChange={(e)=> setAnio(e.target.value)}></input>
-                        </div>
-                        <div className='input-group mb-3'>
-                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
-                            <input type='text' id='fechaOtorgamiento' className='form-control' placeholder='Fecha de otorgamiento' value={fechaOtorgamiento || '' }
-                            onChange={(e)=> setFechaOtorgamiento(e.target.value)}></input>
-                        </div>
-                        <div className='input-group mb-3'>
-                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
-                            <input type='text' id='fechaVencimiento' className='form-control' placeholder='Fecha de vencimiento' value={fechaVencimiento || '' }
-                            onChange={(e)=> setFechaVencimiento(e.target.value)}></input>
-                        </div>
-                        <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-dollar-sign'></i></span>
-                            <input type='text' id='precio' className='form-control' placeholder='Precio' value={costo}
+                            <input type='text' id='precio' className={`form-control ${costoError ? 'is-invalid' : ''}`} placeholder='Precio' value={costo}
                             onChange={(e)=> setCosto(e.target.value)}></input>
                         </div>
-                                     
+                        {costoError && <div className="error-message" style={{ marginBottom: '10px', color: 'red' }}>{costoError}</div>}
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-regular fa-calendar-days'></i></span>
+                                <DatePicker
+                                    selected={anio}
+                                    value={anio}
+                                    onChange={(date) => setAnio(date)}
+                                    className={`form-control ${anioError ? 'is-invalid' : ''}`}
+                                    placeholderText='Año'
+                                    showYearPicker
+                                    dateFormat="yyyy"
+                                />
+                        </div>  
+                        {anioError && <div className="error-message" style={{ marginBottom: '10px', color: 'red' }}>{anioError}</div>}                              
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-regular fa-calendar-days'></i></span>
+                                <DatePicker
+                                    selected={fechaOtorgamiento}
+                                    value={fechaOtorgamiento}
+                                    onChange={(date) => setFechaOtorgamiento(date)}
+                                    className={`form-control ${otorgamientoError ? 'is-invalid' : ''}`}
+                                    placeholderText='Fecha otorgamiento'
+                                    dateFormat="yyyy-MM-dd"
+                                />
+                        </div>  
+                        {otorgamientoError && <div className="error-message" style={{ marginBottom: '10px', color: 'red' }}>{otorgamientoError}</div>}                               
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-regular fa-calendar-days'></i></span>
+                                <DatePicker
+                                    selected={fechaVencimiento}
+                                    value={fechaVencimiento}
+                                    onChange={(date) => setFechaVencimiento(date)}
+                                    className={`form-control ${vencimientoError ? 'is-invalid' : ''}`}
+                                    placeholderText='Fecha vencimiento'
+                                    dateFormat="yyyy-MM-dd"
+                                />
+                        </div>  
+                        {vencimientoError && <div className="error-message" style={{ marginBottom: '10px', color: 'red' }}>{vencimientoError}</div>}                                                              
                         <div className='d-grid col-6 mx-auto'>
                             <button onClick={() => validarLicencia()} className='btn btn-success'>
                                 <i className='fa-solid fa-floppy-disk'></i> Guardar
@@ -325,7 +375,7 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
                         </div>
                     </div>
                     <div className='modal-footer'>
-                        <button type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>Cerrar</button>
+                        <button onClick={() => limpiarErrores()} type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>Cerrar</button>
                     </div>
                 </div>
             </div>
@@ -366,17 +416,17 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
                             ></input>
                         </div>
                         <div className='input-group mb-3'>
-                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <span className='input-group-text'><i className='fa-regular fa-calendar-days'></i></span>
                             <input type='text' id='anio' className='form-control' placeholder='Año' value={anio || '' }
                             ></input>
                         </div>
                         <div className='input-group mb-3'>
-                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <span className='input-group-text'><i className='fa-regular fa-calendar-days'></i></span>
                             <input type='text' id='fechaOtorgamiento' className='form-control' placeholder='Fecha de otorgamiento' value={fechaOtorgamiento || '' }
                             ></input>
                         </div>
                         <div className='input-group mb-3'>
-                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
+                            <span className='input-group-text'><i className='fa-regular fa-calendar-days'></i></span>
                             <input type='text' id='fechaVencimiento' className='form-control' placeholder='Fecha de vencimiento' value={fechaVencimiento || '' }
                             ></input>
                         </div>
@@ -384,9 +434,7 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
                             <span className='input-group-text'><i className='fa-solid fa-dollar-sign'></i></span>
                             <input type='text' id='precio' className='form-control' placeholder='Precio' value={costo}
                             ></input>
-                        </div>
-                                 
-                                
+                        </div>                              
                     </div>
                     <div className='modal-footer'>
                         <button type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>Cerrar</button>

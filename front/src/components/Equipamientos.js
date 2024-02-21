@@ -1,11 +1,13 @@
-
-import { MDBDataTable } from 'mdbreact';
 import React, { useEffect, useState } from 'react';
+import { MDBDataTable } from 'mdbreact';
 import { Link, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { apiDeleteAdquisicion, apiGetAdquisiciones, apiGetFinanciamiento, apiPostAdquisicion } from '../axios/axios';
+import { apiDeleteAdquisicion, apiGetAdquisiciones, apiPostAdquisicion } from '../axios/axios';
 import { show_alerta } from '../functions';
+import { format } from 'date-fns';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export const Equipamientos = ({ actualizarFinanciamiento }) => {
     const [effect, setEffect] = useState(false);
@@ -13,7 +15,6 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
     const urlAdquisiciones = `http://localhost:8080/equipamientos/financiamiento/${idFinanciamiento}`;
     const url = 'http://localhost:8080/equipamientos'
     const [adquisiciones, setAdquisiciones]= useState([]);
-    // const [financiamiento, setFinanciamiento]= useState({});
     const [id, setId]= useState('');
     const [descripcion, setDescripcion]= useState('');
     const [costo, setCosto]= useState('');
@@ -21,31 +22,24 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
     const [operation, setOperation]= useState(1);
     const [title, setTitle]= useState('');
     const [denominacion, setDenominacion]= useState('');
-    const [tipo, setTipo]= useState('');
-    
+    const [descripcionError, setDescripcionError] = useState('');
+    const [costoError, setCostoError] = useState('');
+    const [fechaError, setFechaError] = useState('');
     
     const adquisicionesList = adquisiciones.content || [];
     const rowsWithRowNumber = adquisicionesList.map((row, index) => ({ ...row, rowNumber: index + 1 }));
 
     useEffect(() => {
         getAdquisiciones();
-        // getFinanciamiento();
         setEffect(false);
     }, [effect]);
-
 
     const getAdquisiciones = async () => {
         const respuesta = await apiGetAdquisiciones(urlAdquisiciones);
         setAdquisiciones(respuesta.data);  
     }
 
-    // const getFinanciamiento = async () => {
-    //     const respuesta = await apiGetFinanciamiento('http://localhost:8080/fuentes-financiamiento/' + idFinanciamiento);
-    //     setFinanciamiento(respuesta.data);  
-    // }
-
-    const openModal = (op, id, descripcion, costo, denominacion, fechaIncorporacion) =>{
-       
+    const openModal = (op, id, descripcion, costo, denominacion, fechaIncorporacion) =>{   
         setDescripcion('');
         setCosto('');
         setOperation(op);
@@ -53,7 +47,7 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
         setFechaIncorporacion('');
 
         if(op === 1){
-            setTitle('Registrar adquisicion');
+            setTitle('Registrar equipamiento');
             setId(idFinanciamiento);  
             setDescripcion('');
             setCosto('');
@@ -61,16 +55,15 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
             setFechaIncorporacion('');        
         }
         else if(op === 2){
-            setTitle('Editar adquisicion');
+            setTitle('Editar equipamiento');
             setId(id);
             setDescripcion(descripcion);
             setCosto(costo);
             setDenominacion(denominacion);
             setFechaIncorporacion(fechaIncorporacion);
         }
-        
         else if(op === 3){
-            setTitle('Detalles de la adquisicion');
+            setTitle('Detalles de equipamiento');
             setId(id);
             setDescripcion(descripcion);
             setCosto(costo);
@@ -79,23 +72,36 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
         }   
     }
 
-   
+    const limpiarErrores = () => {
+        setCostoError('');
+        setDescripcionError('');
+        setFechaError('');
+    }
 
     const validarEquipamiento = () => {
         var parametros;
         var metodo;
+        var enviar = true;
+        limpiarErrores();
+
         if(descripcion.trim() === ''){
-            show_alerta('Escriba la descripcion de la adquisicion','warning');
+            setDescripcionError('La descripcion es obligatoria');
+            enviar = false;
         }
-        else if(costo === ''){
-            show_alerta('Escriba el precio de la adquisicion','warning');
+        if(isNaN(Number(costo)) || (Number(costo)) <= 0){
+            setCostoError('El precio debe ser un numero mayor a cero');
+            enviar = false;
         }
-        else{
+        if(fechaIncorporacion === null || fechaIncorporacion === ''){
+            setFechaError('Debe seleccionar una fecha de incorporacion');
+            enviar = false;
+        }
+        if (enviar) {
             if(operation === 1){
                 parametros= {
                     denominacion:denominacion.trim(),
                     descripcion: descripcion.trim(),
-                    fecha_incorporacion: fechaIncorporacion,
+                    fecha_incorporacion: format(fechaIncorporacion, 'yyyy-MM-dd'),
                     costo:costo};
                 metodo= 'POST';
             }
@@ -104,7 +110,7 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
                     id:id,
                     denominacion:denominacion.trim(),
                     descripcion: descripcion.trim(),
-                    fecha_incorporacion: fechaIncorporacion,
+                    fecha_incorporacion: format(fechaIncorporacion, 'yyyy-MM-dd'),
                     costo:costo};
                 metodo= 'PUT';
             }
@@ -112,21 +118,14 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
         }
     }
 
-    
-
     const enviarSolicitud = async(metodo, parametros) => {
         await apiPostAdquisicion({ method: metodo, url: `${url}/${id}`, data: parametros }).then((respuesta) => {
-            console.log(respuesta)
-            show_alerta(metodo==='POST'? 'Adquisicion agregada' : 'Adquisicion modificada', tipo);
-            if(tipo === 'success'){
-                document.getElementById('btnCerrar').click();
-                getAdquisiciones();
-            }
+            show_alerta(metodo==='POST'? 'Adquisicion agregada' : 'Adquisicion modificada', 'success');
             setEffect(true);
             actualizarFinanciamiento(true);
         })
         .catch(function(error){
-            show_alerta('Error en la solicitud','error');
+            show_alerta(error.response.data.message,'error');
             console.log(error);
         });
     }
@@ -140,6 +139,7 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
         }).then(async (result) => {
             if(result.isConfirmed) {
                 await apiDeleteAdquisicion(url, adquisicion.id);
+                show_alerta('La adquisicion fue eliminada','success');
                 setEffect(true);
                 actualizarFinanciamiento(true);
             } else {
@@ -147,7 +147,6 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
             }
         });
     }
-
     
     const data = {
         columns: [
@@ -156,9 +155,8 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
             {label: 'Precio', field: 'costo'},
             {label: 'Denominacion', field: 'denominacion'},
             {label: 'Fecha Incorporacion', field: 'fechaIncorporacion'},
-            {label: 'Acciones', field: 'acciones'}
-            
-          ],
+            {label: 'Acciones', field: 'acciones'}      
+        ],
         rows: []
     };
 
@@ -177,7 +175,7 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
                     adquisicion.descripcion,
                     adquisicion.costo,
                     adquisicion.denominacion,
-                    adquisicion.fechaIncorporacion
+                    adquisicion.fecha_incorporacion
                     )}
                      className='btn btn-secondary' data-bs-toggle='modal' data-bs-target={'#modalProducts-equipamientos-ver'}>
                     <i className='fa-solid fa-eye'></i>
@@ -189,7 +187,7 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
                     adquisicion.descripcion,
                     adquisicion.costo,
                     adquisicion.denominacion,
-                    adquisicion.fechaIncorporacion
+                    adquisicion.fecha_incorporacion
                     )}
                      className='btn btn-warning' data-bs-toggle='modal' data-bs-target={'#modalProducts-equipamientos'}>
                     <i className='fa-solid fa-pen'></i>
@@ -203,17 +201,7 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
     });
 
   return (
-    <div className='App'>
-         {/* <h1 className='col-0 col-lg-12 offset-0 offset-lg-0 d-grid justify-items-start fw-lighter' style={{ fontSize: '18px', color: 'Dimgrey', textAlign: 'left', marginBottom: "20px" }}>
-            <th >
-            Fuente de financiamiento: <span className="fw-lighter">{motivoFinanciamiento}</span> 
-            </th> 
-            <th>
-            Monto disponible: $<span className="fw-lighter">{financiamiento.monto}</span>
-            </th>     
-                     
-        </h1> */}
-        
+    <div className='App'>  
         <div className='row mt-3'>
             <div className='col-lg-10 offset-lg-1'>
             <MDBDataTable 
@@ -223,27 +211,20 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
              entries={5} 
              small
              noBottomColumns={true}
-             selectRows={true}
-             
+             selectRows={true}            
             >
             </MDBDataTable>
-            <div>
-            
-                            
-                <Link to={"/index"} className="col-md-1 offset-md-0 btn btn-dark">
-                    <i className="fa fa-arrow-left"></i>
-                </Link>      
+                <div>          
+                    <Link to={"/index"} className="col-md-1 offset-md-0 btn btn-dark">
+                        <i className="fa fa-arrow-left"></i>
+                    </Link>      
                     <button onClick={()=> openModal(1)} className='col-md-3 offset-md-8 btn btn-success' data-bs-toggle='modal' data-bs-target={'#modalProducts-equipamientos'}>
                         <i className='fa-solid fa-circle-plus'>
                         </i> Agregar
-                </button>
-                  
+                    </button>        
+                </div>
             </div>
-
-            </div>
-
-        </div>
-        
+        </div>       
         <div id='modalProducts-equipamientos' className='modal fade' aria-hidden='true'>
             <div className='modal-dialog'>
                 <div className='modal-content'>
@@ -256,26 +237,39 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
                 
                         <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
-                            <input type='text' id='descripcion' className='form-control' placeholder='Descripción' value={descripcion}
+                            <input type='text' id='descripcion' className={`form-control ${descripcionError ? 'is-invalid' : ''}`} placeholder='Descripción' value={descripcion}
                             onChange={(e)=> setDescripcion(e.target.value)}></input>
                         </div>
+                        {descripcionError && <div className="error-message" style={{ marginBottom: '10px', color: 'red' }}>{descripcionError}</div>}
                         <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
                             <input type='text' id='denominacion' className='form-control' placeholder='Denominacion' value={denominacion}
                             onChange={(e)=> setDenominacion(e.target.value)}></input>
                         </div>
-                        <div className='input-group mb-3'>
+                        {/* <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
                             <input type='text' id='fechaIncorporacion' className='form-control' placeholder='Fecha Incorporacion' value={fechaIncorporacion}
                             onChange={(e)=> setFechaIncorporacion(e.target.value)}></input>
-                        </div>
+                        </div> */}
                         <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-dollar-sign'></i></span>
-                            <input type='text' id='precio' className='form-control' placeholder='Precio' value={costo}
+                            <input type='text' id='precio' className={`form-control ${costoError ? 'is-invalid' : ''}`} placeholder='Precio' value={costo}
                             onChange={(e)=> setCosto(e.target.value)}></input>
                         </div>
-                                 
-                                            
+                        {costoError && <div className="error-message" style={{ marginBottom: '10px', color: 'red' }}>{costoError}</div>}
+
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-regular fa-calendar-days'></i></span>
+                                <DatePicker
+                                    selected={fechaIncorporacion}
+                                    value={fechaIncorporacion}
+                                    onChange={(date) => setFechaIncorporacion(date)}
+                                    className={`form-control ${fechaError ? 'is-invalid' : ''}`}
+                                    placeholderText='Fecha Incorporacion'
+                                    dateFormat="yyyy-MM-dd"
+                                />
+                        </div>  
+                        {fechaError && <div className="error-message" style={{ marginBottom: '10px', color: 'red' }}>{fechaError}</div>}                                                  
                         <div className='d-grid col-6 mx-auto'>
                             <button onClick={() => validarEquipamiento()} className='btn btn-success' >
                                 <i className='fa-solid fa-floppy-disk'></i> Guardar
@@ -283,7 +277,7 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
                         </div>
                     </div>
                     <div className='modal-footer'>
-                        <button type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>Cerrar</button>
+                        <button onClick={() => limpiarErrores()} type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>Cerrar</button>
                     </div>
                 </div>
             </div>
@@ -309,24 +303,22 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
                             ></input>
                         </div>
                         <div className='input-group mb-3'>
-                            <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
-                            <input type='text' id='fechaIncorporacion' className='form-control' placeholder='Fecha Incorporacion' value={fechaIncorporacion || '' }
-                            ></input>
-                        </div>
-                        <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-dollar-sign'></i></span>
                             <input type='text' id='precio' className='form-control' placeholder='Precio' value={costo}
                             ></input>
                         </div>
-                                 
+                        <div className='input-group mb-3'>
+                            <span className='input-group-text'><i className='fa-regular fa-calendar-days'></i></span>
+                            <input type='text' id='fechaIncorporacion' className='form-control' placeholder='Fecha Incorporacion' value={fechaIncorporacion || '' }
+                            ></input>
+                        </div>                                 
                     </div>
                     <div className='modal-footer'>
                         <button type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>Cerrar</button>
                     </div>
                 </div>
             </div>
-        </div>
-      
+        </div>     
     </div>
   )
 }

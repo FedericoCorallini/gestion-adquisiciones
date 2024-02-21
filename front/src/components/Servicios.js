@@ -1,9 +1,9 @@
-import { MDBDataTable } from 'mdbreact';
 import React, { useEffect, useState } from 'react';
+import { MDBDataTable } from 'mdbreact';
 import { Link, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { apiDeleteAdquisicion, apiGetAdquisiciones, apiGetFinanciamiento, apiPostAdquisicion } from '../axios/axios';
+import { apiDeleteAdquisicion, apiGetAdquisiciones, apiPostAdquisicion } from '../axios/axios';
 import { show_alerta } from '../functions';
 
 export const Servicios = ({ actualizarFinanciamiento }) => {
@@ -18,6 +18,8 @@ export const Servicios = ({ actualizarFinanciamiento }) => {
     const [costo, setCosto]= useState('');
     const [operation, setOperation]= useState(1);
     const [title, setTitle]= useState('');
+    const [costoError, setCostoError] = useState('')
+    const [descripcionError, setDescripcionError] = useState('')
     
     const adquisicionesList = adquisiciones.content || [];
     const rowsWithRowNumber = adquisicionesList.map((row, index) => ({ ...row, rowNumber: index + 1 }));
@@ -27,37 +29,33 @@ export const Servicios = ({ actualizarFinanciamiento }) => {
         setEffect(false);
     }, [effect]);
 
-
     const getAdquisiciones = async () => {
         const respuesta = await apiGetAdquisiciones(urlAdquisiciones);
         setAdquisiciones(respuesta.data);  
     }
 
     const openModal = (op, id, tipo, descripcion, costo) =>{
-    
         setDescripcion('');
         setCosto('');
         setOperation(op);
         setTipo('');
         
         if(op === 1){
-            setTitle('Registrar adquisicion');
+            setTitle('Registrar servicio');
             setId(idFinanciamiento);  
             setDescripcion('');
             setCosto('');
             setTipo('');            
         }
-
         else if(op === 2){
-            setTitle('Editar adquisicion');
+            setTitle('Editar servicio');
             setId(id);
             setDescripcion(descripcion);
             setCosto(costo);
             setTipo(tipo); 
-        }
-        
+        }     
         else if(op === 3){
-            setTitle('Detalles de la adquisicion');
+            setTitle('Detalles de servicio');
             setId(id);
             setDescripcion(descripcion);
             setCosto(costo);
@@ -65,43 +63,53 @@ export const Servicios = ({ actualizarFinanciamiento }) => {
         }    
     }
 
+    const limpiarErrores = () => {
+        setCostoError('');
+        setDescripcionError('');
+    }
+
     const validarServicio = () => {
         var parametros;
         var metodo;
+        var enviar = true;
+        limpiarErrores();
+
         if(descripcion.trim() === ''){
-            show_alerta('Escriba la descripcion de la adquisicion','warning');
+            setDescripcionError('La descripcion es obligatoria');
+            enviar = false;
         }
-        else if(costo === ''){
-            show_alerta('Escriba el precio de la adquisicion','warning');
+        if(isNaN(Number(costo)) || (Number(costo)) <= 0){
+            setCostoError('El precio debe ser un numero mayor a cero');
+            enviar = false;
         }
-        else{
+        if (enviar) {
             if(operation === 1){
-                parametros= {tipo:tipo.trim(),descripcion: descripcion.trim(),costo:costo};
+                parametros= {
+                    tipo:tipo.trim(),
+                    descripcion: descripcion.trim(),
+                    costo:costo};
                 metodo= 'POST';
             }
             else{
-                parametros={id:id,tipo:tipo.trim(),descripcion: descripcion.trim(),costo:costo};
+                parametros={
+                    id:id,
+                    tipo:tipo.trim(),
+                    descripcion: descripcion.trim(),
+                    costo:costo};
                 metodo= 'PUT';
             }
             enviarSolicitud(metodo,parametros);
         }
     }
 
-
-
     const enviarSolicitud = async(metodo, parametros) => {
         await apiPostAdquisicion({ method: metodo, url: `${url}/${id}`, data: parametros }).then((respuesta) => {
-            show_alerta(metodo==='POST'? 'Adquisicion agregada' : 'Adquisicion modificada', tipo);
-            if(tipo === 'success'){
-                document.getElementById('btnCerrar').click();
-                getAdquisiciones();
-            }
+            show_alerta(metodo==='POST'? 'Adquisicion agregada' : 'Adquisicion modificada', 'success');
             setEffect(true);
             actualizarFinanciamiento(true);
         })
         .catch(function(error){
-            console.log(error.response.data.error)
-            show_alerta('Error en la solicitud','error');
+            show_alerta(error.response.data.message,'error');
             console.log(error);
         });
     }
@@ -115,6 +123,7 @@ export const Servicios = ({ actualizarFinanciamiento }) => {
         }).then(async (result) => {
             if(result.isConfirmed) {
                 await apiDeleteAdquisicion(url, adquisicion.id);
+                show_alerta('La adquisicion fue eliminada','success');
                 setEffect(true);
                 actualizarFinanciamiento(true);
             } else {
@@ -122,7 +131,6 @@ export const Servicios = ({ actualizarFinanciamiento }) => {
             }
         });
     }
-
     
     const data = {
         columns: [
@@ -173,7 +181,6 @@ export const Servicios = ({ actualizarFinanciamiento }) => {
         })
     });
 
-
   return (
     <div className='App'>
         <div className='row mt-3'>
@@ -192,14 +199,13 @@ export const Servicios = ({ actualizarFinanciamiento }) => {
                 <Link to={"/index"} className="col-md-1 offset-md-0 btn btn-dark">
                     <i className="fa fa-arrow-left"></i>
                 </Link>      
-                    <button onClick={()=> openModal(1)} className='col-md-3 offset-md-8 btn btn-success' data-bs-toggle='modal' data-bs-target={'#modalProducts-servicios'}>
-                        <i className='fa-solid fa-circle-plus'>
-                        </i> Agregar
+                <button onClick={()=> openModal(1)} className='col-md-3 offset-md-8 btn btn-success' data-bs-toggle='modal' data-bs-target={'#modalProducts-servicios'}>
+                    <i className='fa-solid fa-circle-plus'>
+                    </i> Agregar
                 </button>     
             </div>
             </div>
         </div>
-
         <div id='modalProducts-servicios-ver' className='modal fade' aria-hidden='true'>
             <div className='modal-dialog'>
                 <div className='modal-content'>
@@ -208,8 +214,7 @@ export const Servicios = ({ actualizarFinanciamiento }) => {
                         <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
                     </div>
                     <div className='modal-body'>
-                        <input type='hidden' id='id'></input>
-                   
+                        <input type='hidden' id='id'></input>                  
                         <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
                             <input type='text' id='descripcion' className='form-control' placeholder='Descripción' value={descripcion}
@@ -240,13 +245,13 @@ export const Servicios = ({ actualizarFinanciamiento }) => {
                         <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
                     </div>
                     <div className='modal-body'>
-                        <input type='hidden' id='id'></input>
-                   
+                        <input type='hidden' id='id'></input>                  
                         <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-comment'></i></span>
-                            <input type='text' id='descripcion' className='form-control' placeholder='Descripción' value={descripcion}
+                            <input type='text' id='descripcion' className={`form-control ${descripcionError ? 'is-invalid' : ''}`} placeholder='Descripción' value={descripcion}
                             onChange={(e)=> setDescripcion(e.target.value)}></input>
                         </div>
+                        {descripcionError && <div className="error-message" style={{ marginBottom: '10px', color: 'red' }}>{descripcionError}</div>}
                         <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-comment'> </i></span>
                             <input type='text' id='tipo' className='form-control' placeholder='Tipo' value={tipo}
@@ -254,10 +259,10 @@ export const Servicios = ({ actualizarFinanciamiento }) => {
                         </div>
                         <div className='input-group mb-3'>
                             <span className='input-group-text'><i className='fa-solid fa-dollar-sign'> </i> </span>
-                            <input type='text' id='precio' className='form-control' placeholder='Precio' value={costo}
+                            <input type='text' id='precio' className={`form-control ${costoError ? 'is-invalid' : ''}`} placeholder='Precio' value={costo}
                             onChange={(e)=> setCosto(e.target.value)}></input>
                         </div>
-                                            
+                        {costoError && <div className="error-message" style={{ marginBottom: '10px', color: 'red' }}>{costoError}</div>}                                           
                         <div className='d-grid col-6 mx-auto'>
                             <button onClick={() => validarServicio()} className='btn btn-success'>
                                 <i className='fa-solid fa-floppy-disk'></i> Guardar
@@ -265,13 +270,11 @@ export const Servicios = ({ actualizarFinanciamiento }) => {
                         </div>
                     </div>
                     <div className='modal-footer'>
-                        <button type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>Cerrar</button>
+                        <button onClick={() => limpiarErrores()} type='button' id='btnCerrar' className='btn btn-secondary' data-bs-dismiss='modal'>Cerrar</button>
                     </div>
                 </div>
             </div>
-        </div>
-       
-        
+        </div>    
     </div>
   )
 }
