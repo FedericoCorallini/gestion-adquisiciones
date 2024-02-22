@@ -16,11 +16,11 @@ public abstract class AdquisicionService {
     protected final FinanciamientoService financiamientoService;
     protected final ModelMapper modelMapper;
 
-    public abstract Page<? extends Adquisicion> getAdquisicionesByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos);
+    public abstract Page<AdquisicionDTO> getAdquisicionesByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos);
 
-    public abstract Adquisicion getAdquisicionById(Long id);
+    public abstract AdquisicionDTO getAdquisicionById(Long id);
 
-    public abstract Page<? extends Adquisicion> getAdquisicion(Integer nroPagina, Integer nroElementos, String criterio);
+    public abstract Page<AdquisicionDTO> getAdquisicion(Integer nroPagina, Integer nroElementos, String criterio);
 
     public abstract AdquisicionDTO agregarAdquisicion(AdquisicionDTO adquisicionDTO, Long idFinanciamiento);
 

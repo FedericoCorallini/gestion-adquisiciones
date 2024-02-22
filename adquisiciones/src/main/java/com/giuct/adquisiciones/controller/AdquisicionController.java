@@ -21,12 +21,12 @@ public class AdquisicionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<? extends Adquisicion> getAdquisiciones(@PathVariable String adquisiciones, @PathVariable Long id){
+    public ResponseEntity<AdquisicionDTO> getAdquisiciones(@PathVariable String adquisiciones, @PathVariable Long id){
         return ResponseEntity.ok(this.getService(adquisiciones).getAdquisicionById(id));
     }
 
     @GetMapping
-    public ResponseEntity<Page<? extends Adquisicion>> getAdquisicion(
+    public ResponseEntity<Page<AdquisicionDTO>> getAdquisicion(
             @PathVariable String adquisiciones,
             @RequestParam(name = "ordenar", required = false, defaultValue = "id") String criterio,
             @RequestParam(name="pagina", required = false, defaultValue = "0") Integer nroPagina,
@@ -35,7 +35,7 @@ public class AdquisicionController {
     }
 
     @GetMapping("/financiamiento/{idFinanciamiento}")
-    public ResponseEntity<Page<? extends Adquisicion>> getAdquisicionesByFinanciamiento(
+    public ResponseEntity<Page<AdquisicionDTO>> getAdquisicionesByFinanciamiento(
             @PathVariable String adquisiciones,
             @PathVariable Long idFinanciamiento,
             @RequestParam(name = "ordenar", required = false, defaultValue = "id") String criterio,

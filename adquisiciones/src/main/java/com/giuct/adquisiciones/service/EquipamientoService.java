@@ -9,10 +9,12 @@ import com.giuct.adquisiciones.repository.IFuenteRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service("equipamientos")
@@ -28,33 +30,47 @@ public class EquipamientoService extends AdquisicionService{
     }
 
     @Override
-    public Page<? extends Adquisicion> getAdquisicion(Integer nroPagina, Integer nroElementos, String criterio) {
+    public Page<AdquisicionDTO> getAdquisicion(Integer nroPagina, Integer nroElementos, String criterio) {
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
 
-        return equipamientoRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+        Page<Equipamiento> equipamientoPage = equipamientoRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+
+        List<AdquisicionDTO> adquisicionDTOs = equipamientoPage.getContent()
+                .stream()
+                .map(a -> modelMapper.map(a, AdquisicionDTO.class))
+                .toList();
+
+        return new PageImpl<>(adquisicionDTOs, equipamientoPage.getPageable(), equipamientoPage.getTotalElements());
     }
 
     @Override
-    public Adquisicion getAdquisicionById(Long id) {
+    public AdquisicionDTO getAdquisicionById(Long id) {
         Optional<Equipamiento> equipamientoOptional = equipamientoRepository.findById(id);
         if(equipamientoOptional.isPresent()){
-            return equipamientoOptional.get();
+            return modelMapper.map(equipamientoOptional.get(), AdquisicionDTO.class);
         }
         throw new InvalidAdquisicionException("El equipamiento solicitado no existe");
     }
 
 
     @Override
-    public Page<? extends Adquisicion> getAdquisicionesByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
+    public Page<AdquisicionDTO> getAdquisicionesByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
 
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
 
-        return equipamientoRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
+        Page<Equipamiento> equipamientoPage = equipamientoRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
+
+        List<AdquisicionDTO> adquisicionDTOs = equipamientoPage.getContent()
+                .stream()
+                .map(a -> modelMapper.map(a, AdquisicionDTO.class))
+                .toList();
+
+        return new PageImpl<>(adquisicionDTOs, equipamientoPage.getPageable(), equipamientoPage.getTotalElements());
     }
 
 

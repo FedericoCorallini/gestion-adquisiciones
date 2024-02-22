@@ -10,10 +10,12 @@ import com.giuct.adquisiciones.repository.IBibliografiaRepository;
 import com.giuct.adquisiciones.repository.IFuenteRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service("bibliografias")
@@ -28,30 +30,44 @@ public class BibliografiaService extends AdquisicionService{
     }
 
     @Override
-    public Adquisicion getAdquisicionById(Long id) {
+    public AdquisicionDTO getAdquisicionById(Long id) {
         Optional<Bibliografia> bibliografiaOptional = bibliografiaRepository.findById(id);
         if(bibliografiaOptional.isPresent()){
-            return bibliografiaOptional.get();
+            return modelMapper.map(bibliografiaOptional.get(), AdquisicionDTO.class);
         }
         throw new InvalidAdquisicionException("La bibliografia solicitada no existe");
     }
 
 
     @Override
-    public Page<? extends Adquisicion> getAdquisicion(Integer nroPagina, Integer nroElementos, String criterio) {
+    public Page<AdquisicionDTO> getAdquisicion(Integer nroPagina, Integer nroElementos, String criterio) {
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
-        return bibliografiaRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+        Page<Bibliografia> bibliografiaPage = bibliografiaRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+
+        List<AdquisicionDTO> adquisicionDTOs = bibliografiaPage.getContent()
+                .stream()
+                .map(a -> modelMapper.map(a, AdquisicionDTO.class))
+                .toList();
+
+        return new PageImpl<>(adquisicionDTOs, bibliografiaPage.getPageable(), bibliografiaPage.getTotalElements());
     }
 
     @Override
-    public Page<? extends Adquisicion> getAdquisicionesByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
+    public Page<AdquisicionDTO> getAdquisicionesByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
-        return bibliografiaRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
+        Page<Bibliografia> bibliografiaPage = bibliografiaRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
+
+        List<AdquisicionDTO> adquisicionDTOs = bibliografiaPage.getContent()
+                .stream()
+                .map(a -> modelMapper.map(a, AdquisicionDTO.class))
+                .toList();
+
+        return new PageImpl<>(adquisicionDTOs, bibliografiaPage.getPageable(), bibliografiaPage.getTotalElements());
     }
 
     @Override

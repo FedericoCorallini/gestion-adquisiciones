@@ -9,10 +9,12 @@ import com.giuct.adquisiciones.repository.ILicenciaRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service("licencias")
@@ -28,29 +30,43 @@ public class LicenciaService extends AdquisicionService{
     }
 
     @Override
-    public Adquisicion getAdquisicionById(Long id) {
+    public AdquisicionDTO getAdquisicionById(Long id) {
         Optional<Licencia> licenciaOptional = licenciaRepository.findById(id);
         if(licenciaOptional.isPresent()){
-            return licenciaOptional.get();
+            return modelMapper.map(licenciaOptional.get(), AdquisicionDTO.class);
         }
         throw new InvalidAdquisicionException("La licencia solicitada no existe");
     }
 
     @Override
-    public Page<? extends Adquisicion> getAdquisicion(Integer nroPagina, Integer nroElementos, String criterio) {
+    public Page<AdquisicionDTO> getAdquisicion(Integer nroPagina, Integer nroElementos, String criterio) {
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
-        return licenciaRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+        Page<Licencia> licenciaPage = licenciaRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+
+        List<AdquisicionDTO> adquisicionDTOs = licenciaPage.getContent()
+                .stream()
+                .map(a -> modelMapper.map(a, AdquisicionDTO.class))
+                .toList();
+
+        return new PageImpl<>(adquisicionDTOs, licenciaPage.getPageable(), licenciaPage.getTotalElements());
     }
 
     @Override
-    public Page<? extends Adquisicion> getAdquisicionesByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
+    public Page<AdquisicionDTO> getAdquisicionesByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
-        return licenciaRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
+        Page<Licencia> licenciaPage = licenciaRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
+
+        List<AdquisicionDTO> adquisicionDTOs = licenciaPage.getContent()
+                .stream()
+                .map(a -> modelMapper.map(a, AdquisicionDTO.class))
+                .toList();
+
+        return new PageImpl<>(adquisicionDTOs, licenciaPage.getPageable(), licenciaPage.getTotalElements());
     }
 
     @Override

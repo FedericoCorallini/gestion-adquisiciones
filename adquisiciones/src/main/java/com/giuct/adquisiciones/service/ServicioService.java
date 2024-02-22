@@ -10,10 +10,12 @@ import com.giuct.adquisiciones.repository.IFuenteRepository;
 import com.giuct.adquisiciones.repository.IServicioRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service("servicios")
@@ -29,29 +31,43 @@ public class ServicioService extends AdquisicionService{
     }
 
     @Override
-    public Page<? extends Adquisicion> getAdquisicionesByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
+    public Page<AdquisicionDTO> getAdquisicionesByFinanciamiento(Long idFinanciamiento, String criterio, Integer nroPagina, Integer nroElementos) {
         FuenteFinanciamiento fuenteFinanciamiento = financiamientoService.getFuenteById(idFinanciamiento);
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
-        return servicioRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
+        Page<Servicio> servicioPage = servicioRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
+
+        List<AdquisicionDTO> adquisicionDTOs = servicioPage.getContent()
+                .stream()
+                .map(a -> modelMapper.map(a, AdquisicionDTO.class))
+                .toList();
+
+        return new PageImpl<>(adquisicionDTOs, servicioPage.getPageable(), servicioPage.getTotalElements());
     }
 
     @Override
-    public Adquisicion getAdquisicionById(Long id) {
+    public AdquisicionDTO getAdquisicionById(Long id) {
         Optional<Servicio> servicioOptional = servicioRepository.findById(id);
         if(servicioOptional.isPresent()){
-            return servicioOptional.get();
+            return modelMapper.map(servicioOptional.get(), AdquisicionDTO.class);
         }
         throw new InvalidAdquisicionException("El servicio solicitado no existe");
     }
 
     @Override
-    public Page<? extends Adquisicion> getAdquisicion(Integer nroPagina, Integer nroElementos, String criterio) {
+    public Page<AdquisicionDTO> getAdquisicion(Integer nroPagina, Integer nroElementos, String criterio) {
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
-        return servicioRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+        Page<Servicio> servicioPage = servicioRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+
+        List<AdquisicionDTO> adquisicionDTOs = servicioPage.getContent()
+                .stream()
+                .map(a -> modelMapper.map(a, AdquisicionDTO.class))
+                .toList();
+
+        return new PageImpl<>(adquisicionDTOs, servicioPage.getPageable(), servicioPage.getTotalElements());
     }
 
     @Override
