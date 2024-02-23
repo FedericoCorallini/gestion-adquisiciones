@@ -36,7 +36,7 @@ public class ServicioService extends AdquisicionService{
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
-        Page<Servicio> servicioPage = servicioRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
+        Page<Servicio> servicioPage = servicioRepository.findByFuenteFinanciamientoAndBorrado(fuenteFinanciamiento, false, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
 
         List<AdquisicionDTO> adquisicionDTOs = servicioPage.getContent()
                 .stream()
@@ -48,7 +48,7 @@ public class ServicioService extends AdquisicionService{
 
     @Override
     public AdquisicionDTO getAdquisicionById(Long id) {
-        Optional<Servicio> servicioOptional = servicioRepository.findById(id);
+        Optional<Servicio> servicioOptional = servicioRepository.findByIdAndBorrado(id, false);;
         if(servicioOptional.isPresent()){
             return modelMapper.map(servicioOptional.get(), AdquisicionDTO.class);
         }
@@ -60,7 +60,7 @@ public class ServicioService extends AdquisicionService{
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
-        Page<Servicio> servicioPage = servicioRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+        Page<Servicio> servicioPage = servicioRepository.findByBorrado(false, PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
 
         List<AdquisicionDTO> adquisicionDTOs = servicioPage.getContent()
                 .stream()
@@ -86,7 +86,7 @@ public class ServicioService extends AdquisicionService{
 
     @Override
     public AdquisicionDTO modificarAdquisicion(Long id, AdquisicionDTO adquisicionDTO) {
-        Optional<Servicio> servicioOptional = servicioRepository.findById(id);
+        Optional<Servicio> servicioOptional = servicioRepository.findByIdAndBorrado(id, false);
         if(servicioOptional.isPresent()){
             Servicio s = servicioOptional.get();
             FuenteFinanciamiento fuenteFinanciamiento = s.getFuenteFinanciamiento();
@@ -111,7 +111,7 @@ public class ServicioService extends AdquisicionService{
 
     @Override
     public void eliminarAdquisicion(Long id) {
-        Optional<Servicio> servicioOptional = servicioRepository.findById(id);
+        Optional<Servicio> servicioOptional = servicioRepository.findByIdAndBorrado(id, false);;
 
         if (servicioOptional.isEmpty()) {
             throw new InvalidAdquisicionException("La adquisicion no existe");
@@ -120,7 +120,8 @@ public class ServicioService extends AdquisicionService{
         Servicio servicio = servicioOptional.get();
         FuenteFinanciamiento fuenteFinanciamiento = servicio.getFuenteFinanciamiento();
         fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto() + servicio.getCosto());
-        servicioRepository.deleteById(id);
+        servicio.setBorrado(true);
+        servicioRepository.save(servicio);
         fuenteRepository.save(fuenteFinanciamiento);
     }
 }

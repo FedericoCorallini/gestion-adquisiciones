@@ -18,6 +18,9 @@ public abstract class Adquisicion {
     @Column(name = "descripcion")
     protected String descripcion;
 
+    @Column(name = "borrado")
+    protected Boolean borrado;
+
     @ManyToOne
     @JoinColumn(name = "id_fuente_financiamiento")
     protected FuenteFinanciamiento fuenteFinanciamiento;

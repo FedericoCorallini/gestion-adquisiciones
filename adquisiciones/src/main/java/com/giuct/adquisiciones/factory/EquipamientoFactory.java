@@ -18,6 +18,7 @@ public class EquipamientoFactory extends AdquisicionFactory{
     public Equipamiento crear(AdquisicionDTO adquisicionDTO, FuenteFinanciamiento fuenteFinanciamiento) {
         Equipamiento equipamiento = modelMapper.map(adquisicionDTO, Equipamiento.class);
         equipamiento.setFuenteFinanciamiento(fuenteFinanciamiento);
+        equipamiento.setBorrado(false);
 
         return equipamiento;
     }

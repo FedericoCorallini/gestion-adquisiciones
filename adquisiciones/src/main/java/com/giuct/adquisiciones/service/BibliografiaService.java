@@ -31,7 +31,7 @@ public class BibliografiaService extends AdquisicionService{
 
     @Override
     public AdquisicionDTO getAdquisicionById(Long id) {
-        Optional<Bibliografia> bibliografiaOptional = bibliografiaRepository.findById(id);
+        Optional<Bibliografia> bibliografiaOptional = bibliografiaRepository.findByIdAndBorrado(id, false);
         if(bibliografiaOptional.isPresent()){
             return modelMapper.map(bibliografiaOptional.get(), AdquisicionDTO.class);
         }
@@ -44,7 +44,7 @@ public class BibliografiaService extends AdquisicionService{
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
-        Page<Bibliografia> bibliografiaPage = bibliografiaRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+        Page<Bibliografia> bibliografiaPage = bibliografiaRepository.findByBorrado(false, PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
 
         List<AdquisicionDTO> adquisicionDTOs = bibliografiaPage.getContent()
                 .stream()
@@ -60,7 +60,7 @@ public class BibliografiaService extends AdquisicionService{
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
-        Page<Bibliografia> bibliografiaPage = bibliografiaRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
+        Page<Bibliografia> bibliografiaPage = bibliografiaRepository.findByFuenteFinanciamientoAndBorrado(fuenteFinanciamiento, false, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
 
         List<AdquisicionDTO> adquisicionDTOs = bibliografiaPage.getContent()
                 .stream()
@@ -88,7 +88,7 @@ public class BibliografiaService extends AdquisicionService{
 
     @Override
     public AdquisicionDTO modificarAdquisicion(Long id, AdquisicionDTO adquisicionDTO) {
-        bibliografiaRepository.findById(id).stream()
+        bibliografiaRepository.findByIdAndBorrado(id, false).stream()
                 .peek(bibliografia -> {
                     FuenteFinanciamiento fuenteFinanciamiento = bibliografia.getFuenteFinanciamiento();
 
@@ -121,12 +121,13 @@ public class BibliografiaService extends AdquisicionService{
 
     @Override
     public void eliminarAdquisicion(Long id) {
-        bibliografiaRepository.findById(id)
+        bibliografiaRepository.findByIdAndBorrado(id, false)
                 .stream()
                 .peek(bibliografia -> {
                     FuenteFinanciamiento fuenteFinanciamiento = bibliografia.getFuenteFinanciamiento();
                     fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto() + bibliografia.getCosto());
-                    bibliografiaRepository.deleteById(id);
+                    bibliografia.setBorrado(true);
+                    bibliografiaRepository.save(bibliografia);
                     fuenteRepository.save(fuenteFinanciamiento);
                 })
                 .findFirst()

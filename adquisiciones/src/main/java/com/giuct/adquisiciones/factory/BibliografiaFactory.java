@@ -18,6 +18,7 @@ public class BibliografiaFactory extends AdquisicionFactory{
     public Bibliografia crear(AdquisicionDTO adquisicionDTO, FuenteFinanciamiento fuenteFinanciamiento) {
         Bibliografia bibliografia = modelMapper.map(adquisicionDTO, Bibliografia.class);
         bibliografia.setFuenteFinanciamiento(fuenteFinanciamiento);
+        bibliografia.setBorrado(false);
 
         return bibliografia;
     }

@@ -18,6 +18,7 @@ public class ServiceFactory extends AdquisicionFactory{
     public Servicio crear(AdquisicionDTO adquisicionDTO, FuenteFinanciamiento fuenteFinanciamiento) {
         Servicio servicio = modelMapper.map(adquisicionDTO, Servicio.class);
         servicio.setFuenteFinanciamiento(fuenteFinanciamiento);
+        servicio.setBorrado(false);
 
         return servicio;
     }

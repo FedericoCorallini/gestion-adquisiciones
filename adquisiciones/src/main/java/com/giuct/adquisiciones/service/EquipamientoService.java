@@ -35,7 +35,7 @@ public class EquipamientoService extends AdquisicionService{
             nroElementos = Integer.MAX_VALUE;
         }
 
-        Page<Equipamiento> equipamientoPage = equipamientoRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+        Page<Equipamiento> equipamientoPage = equipamientoRepository.findByBorrado(false, PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
 
         List<AdquisicionDTO> adquisicionDTOs = equipamientoPage.getContent()
                 .stream()
@@ -47,7 +47,7 @@ public class EquipamientoService extends AdquisicionService{
 
     @Override
     public AdquisicionDTO getAdquisicionById(Long id) {
-        Optional<Equipamiento> equipamientoOptional = equipamientoRepository.findById(id);
+        Optional<Equipamiento> equipamientoOptional = equipamientoRepository.findByIdAndBorrado(id, false);
         if(equipamientoOptional.isPresent()){
             return modelMapper.map(equipamientoOptional.get(), AdquisicionDTO.class);
         }
@@ -63,7 +63,7 @@ public class EquipamientoService extends AdquisicionService{
             nroElementos = Integer.MAX_VALUE;
         }
 
-        Page<Equipamiento> equipamientoPage = equipamientoRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
+        Page<Equipamiento> equipamientoPage = equipamientoRepository.findByFuenteFinanciamientoAndBorrado(fuenteFinanciamiento, false, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
 
         List<AdquisicionDTO> adquisicionDTOs = equipamientoPage.getContent()
                 .stream()
@@ -92,7 +92,7 @@ public class EquipamientoService extends AdquisicionService{
 
     @Override
     public AdquisicionDTO modificarAdquisicion(Long id, AdquisicionDTO adquisicionDTO) {
-        Optional<Equipamiento> equipamientoOptional = equipamientoRepository.findById(id);
+        Optional<Equipamiento> equipamientoOptional = equipamientoRepository.findByIdAndBorrado(id, false);
 
         if(equipamientoOptional.isPresent()){
             Equipamiento e = equipamientoOptional.get();
@@ -117,7 +117,7 @@ public class EquipamientoService extends AdquisicionService{
 
     @Override
     public void eliminarAdquisicion(Long id) {
-        Optional<Equipamiento> equipamientoOptional = equipamientoRepository.findById(id);
+        Optional<Equipamiento> equipamientoOptional = equipamientoRepository.findByIdAndBorrado(id, false);
 
         if (equipamientoOptional.isEmpty()) {
             throw new InvalidAdquisicionException("La adquisicion no existe");
@@ -126,7 +126,8 @@ public class EquipamientoService extends AdquisicionService{
         Equipamiento equipamiento = equipamientoOptional.get();
         FuenteFinanciamiento fuenteFinanciamiento = equipamiento.getFuenteFinanciamiento();
         fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto() + equipamiento.getCosto());
-        equipamientoRepository.deleteById(id);
+        equipamiento.setBorrado(true);
+        equipamientoRepository.save(equipamiento);
         fuenteRepository.save(fuenteFinanciamiento);
     }
 }

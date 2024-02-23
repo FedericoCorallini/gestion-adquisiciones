@@ -31,7 +31,7 @@ public class LicenciaService extends AdquisicionService{
 
     @Override
     public AdquisicionDTO getAdquisicionById(Long id) {
-        Optional<Licencia> licenciaOptional = licenciaRepository.findById(id);
+        Optional<Licencia> licenciaOptional = licenciaRepository.findByIdAndBorrado(id, false);
         if(licenciaOptional.isPresent()){
             return modelMapper.map(licenciaOptional.get(), AdquisicionDTO.class);
         }
@@ -43,7 +43,7 @@ public class LicenciaService extends AdquisicionService{
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
-        Page<Licencia> licenciaPage = licenciaRepository.findAll(PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
+        Page<Licencia> licenciaPage = licenciaRepository.findByBorrado(false, PageRequest.of(nroPagina,nroElementos, Sort.by(criterio)));
 
         List<AdquisicionDTO> adquisicionDTOs = licenciaPage.getContent()
                 .stream()
@@ -59,7 +59,7 @@ public class LicenciaService extends AdquisicionService{
         if(nroElementos==0){
             nroElementos = Integer.MAX_VALUE;
         }
-        Page<Licencia> licenciaPage = licenciaRepository.findByFuenteFinanciamiento(fuenteFinanciamiento, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
+        Page<Licencia> licenciaPage = licenciaRepository.findByFuenteFinanciamientoAndBorrado(fuenteFinanciamiento, false, PageRequest.of(nroPagina, nroElementos, Sort.by(criterio)));
 
         List<AdquisicionDTO> adquisicionDTOs = licenciaPage.getContent()
                 .stream()
@@ -84,7 +84,7 @@ public class LicenciaService extends AdquisicionService{
 
     @Override
     public AdquisicionDTO modificarAdquisicion(Long id, AdquisicionDTO adquisicionDTO) {
-        Optional<Licencia> licenciaOptional = licenciaRepository.findById(id);
+        Optional<Licencia> licenciaOptional = licenciaRepository.findByIdAndBorrado(id, false);
 
         if(licenciaOptional.isPresent()){
             Licencia l = licenciaOptional.get();
@@ -118,7 +118,7 @@ public class LicenciaService extends AdquisicionService{
 
     @Override
     public void eliminarAdquisicion(Long id) {
-        Optional<Licencia> licenciaOptional = licenciaRepository.findById(id);
+        Optional<Licencia> licenciaOptional = licenciaRepository.findByIdAndBorrado(id, false);
 
         if (licenciaOptional.isEmpty()) {
             throw new InvalidAdquisicionException("La adquisicion no existe");
@@ -127,7 +127,8 @@ public class LicenciaService extends AdquisicionService{
         Licencia licencia = licenciaOptional.get();
         FuenteFinanciamiento fuenteFinanciamiento = licencia.getFuenteFinanciamiento();
         fuenteFinanciamiento.setMonto(fuenteFinanciamiento.getMonto() + licencia.getCosto());
-        licenciaRepository.deleteById(id);
+        licencia.setBorrado(true);
+        licenciaRepository.save(licencia);
         fuenteRepository.save(fuenteFinanciamiento);
     }
 }

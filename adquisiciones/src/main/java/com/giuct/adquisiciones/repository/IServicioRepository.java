@@ -7,7 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IServicioRepository extends JpaRepository<Servicio, Long>{
-    Page<Servicio> findByFuenteFinanciamiento(FuenteFinanciamiento fuenteFinanciamiento, Pageable pageable);
+    Page<Servicio> findByFuenteFinanciamientoAndBorrado(FuenteFinanciamiento fuenteFinanciamiento, Boolean borrado, Pageable pageable);
+    Page<Servicio> findByBorrado(Boolean borrado, Pageable pageable);
+    Optional<Servicio> findByIdAndBorrado(Long id, Boolean borrado);
 }

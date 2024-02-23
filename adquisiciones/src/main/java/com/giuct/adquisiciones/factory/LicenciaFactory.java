@@ -18,6 +18,7 @@ public class LicenciaFactory extends AdquisicionFactory{
     public Licencia crear(AdquisicionDTO adquisicionDTO, FuenteFinanciamiento fuenteFinanciamiento) {
         Licencia licencia = modelMapper.map(adquisicionDTO, Licencia.class);
         licencia.setFuenteFinanciamiento(fuenteFinanciamiento);
+        licencia.setBorrado(false);
 
         return licencia;
     }
