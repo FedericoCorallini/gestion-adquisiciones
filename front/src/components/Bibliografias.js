@@ -131,6 +131,10 @@ export const Bibliografias = ({ actualizarFinanciamiento }) => {
             setFechaError('Debe seleccionar una fecha de incorporacion');
             enviar = false;
         }
+        else if(anioPubicacion > Date.now()){
+            setFechaError('El año de publicacion no puede ser posterior al año corriente')
+            enviar = false;
+        }
         if (enviar) {
             if(operation === 1){
                 parametros= {

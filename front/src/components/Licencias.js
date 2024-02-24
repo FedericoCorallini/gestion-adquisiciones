@@ -125,12 +125,24 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
             setAnioError('Debe seleccionar el año');
             enviar = false;
         }
+        else if(anio > Date.now()){
+            setAnioError('El año de la licencia no puede ser posterior al año corriente')
+            enviar = false;
+        }
         if(fechaOtorgamiento === null || fechaOtorgamiento === ''){
             setOtorgamientoError('Debe seleccionar una fecha de otorgamiento');
             enviar = false;
         }
+        else if(fechaOtorgamiento > Date.now()){
+            setOtorgamientoError('La fecha de otorgamiento no puede ser posterior a la fecha actual')
+            enviar = false;
+        }
         if(fechaVencimiento === null || fechaVencimiento === ''){
             setVencimientoError('Debe seleccionar una fecha de vencimiento');
+            enviar = false;
+        }
+        else if(fechaOtorgamiento > fechaVencimiento){
+            setVencimientoError('La fecha de vencimiento no puede ser anterior al otorgamiento')
             enviar = false;
         }
         if (enviar) {

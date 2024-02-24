@@ -83,7 +83,7 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
         var metodo;
         var enviar = true;
         limpiarErrores();
-
+        
         if(descripcion.trim() === ''){
             setDescripcionError('La descripcion es obligatoria');
             enviar = false;
@@ -94,6 +94,10 @@ export const Equipamientos = ({ actualizarFinanciamiento }) => {
         }
         if(fechaIncorporacion === null || fechaIncorporacion === ''){
             setFechaError('Debe seleccionar una fecha de incorporacion');
+            enviar = false;
+        }
+        else if(fechaIncorporacion > Date.now()){
+            setFechaError('La fecha de incorporacion no puede ser posterior a la fecha actual')
             enviar = false;
         }
         if (enviar) {
