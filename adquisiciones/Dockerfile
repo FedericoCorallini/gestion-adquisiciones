@@ -10,4 +10,4 @@ ENV DB_USERNAME=root
 
 EXPOSE 3310 8080
 
-CMD ["java", "-jar", "/app/back/target/adquisiciones-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "/app/back/adquisiciones-0.0.1-SNAPSHOT.jar"]
