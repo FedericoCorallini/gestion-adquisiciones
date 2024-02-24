@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect } from 'react';
 import Dashboard from './Dashboard';
-import { initKeycloak, keycloak } from './nuevoKeycloak';
+import { initKeycloak } from './nuevoKeycloak';
 
 function App() {
 

@@ -1,22 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
-import { show_alerta } from '../functions';
-import { MDBTable, MDBTableHead, MDBTableBody } from 'mdb-react-ui-kit';
-import { MDBDataTable } from 'mdbreact'; 
-import { keycloak } from '../keycloak';
-import { apiGetFinancimientos } from '../axios/axios';
-import { useToken } from '../hooks/TokenProvider';
 import { format, parseISO } from 'date-fns';
-// import 'mdbreact/dist/css/mdb.css';
-// import 'bootstrap-css-only/css/bootstrap.min.css';
-// import '@fortawesome/fontawesome-free/css/all.min.css';
+import { MDBDataTable } from 'mdbreact';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { apiGetFinancimientos } from '../axios/axios';
 
 const ShowFinanciamientos = () => {
-    const [financiamientos, setFinanciamientos] = useState([]);  
-    const [id, setId]= useState('');
+    const [financiamientos, setFinanciamientos] = useState([]);
     const financiamientosList = financiamientos.content || [];
     const rowsWithRowNumber = financiamientosList.map((row, index) => ({ ...row, rowNumber: index + 1 }));
 
