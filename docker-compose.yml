@@ -5,6 +5,8 @@ services:
   mysql:
     image: mysql:5.7
     container_name: mysql-adquisiciones
+    ports:
+      - "3310:3306"
     environment:
       MYSQL_ROOT_PASSWORD: 12345678
       MYSQL_DATABASE: adquisiciones
@@ -53,23 +55,6 @@ services:
       KC_DB_PASSWORD: 12345678
     volumes:
       - ./keycloak:/opt/keycloak/data/import
-
-  adquisiciones-back:
-    build:
-      context: ./adquisiciones
-      dockerfile: Dockerfile
-    container_name: adquisiciones-back
-    depends_on:
-      - keycloak
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/adquisiciones?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: 12345678
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8088/realms/adquisiciones
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWT_SET_URI: http://localhost:8088/realms/adquisiciones/protocol/openid-connect/certs
 
   adquisiciones-front:
     build:
