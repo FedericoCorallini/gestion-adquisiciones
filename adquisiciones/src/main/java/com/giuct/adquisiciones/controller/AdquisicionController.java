@@ -5,6 +5,7 @@ import java.util.Map;
 import com.giuct.adquisiciones.model.dto.AdquisicionDTO;
 import com.giuct.adquisiciones.model.entity.Adquisicion;
 import com.giuct.adquisiciones.service.AdquisicionService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +46,7 @@ public class AdquisicionController {
     }
 
     @PostMapping("/{idFinanciamiento}")
-    public ResponseEntity<AdquisicionDTO> agregarAdquisicion(@PathVariable String adquisiciones, @RequestBody AdquisicionDTO adquisicionDTO, @PathVariable Long idFinanciamiento){
+    public ResponseEntity<AdquisicionDTO> agregarAdquisicion(@PathVariable String adquisiciones, @Valid @RequestBody AdquisicionDTO adquisicionDTO, @PathVariable Long idFinanciamiento){
         return ResponseEntity.ok(this.getService(adquisiciones).agregarAdquisicion(adquisicionDTO, idFinanciamiento));
     }
 

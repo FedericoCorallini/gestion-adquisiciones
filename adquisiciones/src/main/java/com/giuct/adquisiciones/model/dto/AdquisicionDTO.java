@@ -2,6 +2,8 @@ package com.giuct.adquisiciones.model.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,7 +15,9 @@ import java.time.LocalDate;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AdquisicionDTO {
     private Long id;
+    @Positive
     private float costo;
+    @NotBlank
     private String descripcion;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
