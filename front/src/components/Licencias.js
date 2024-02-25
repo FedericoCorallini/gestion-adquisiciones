@@ -1,17 +1,17 @@
+import { format } from 'date-fns';
 import { MDBDataTable } from 'mdbreact';
 import React, { useEffect, useState } from 'react';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { Link, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { apiDeleteAdquisicion, apiGetAdquisiciones, apiPostAdquisicion } from '../axios/axios';
 import { show_alerta } from '../functions';
-import { format } from 'date-fns';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 
 export const Licencias = ({ actualizarFinanciamiento }) => {
     const [effect, setEffect] = useState(false);
-    const {idFinanciamiento, motivoFinanciamiento, montoFinanciamiento} = useParams();
+    const {idFinanciamiento} = useParams();
     const urlAdquisiciones = `http://localhost:8080/licencias/financiamiento/${idFinanciamiento}`;
     const url = 'http://localhost:8080/licencias'
     const [adquisiciones, setAdquisiciones]= useState([]);
@@ -177,7 +177,7 @@ export const Licencias = ({ actualizarFinanciamiento }) => {
     }
 
     const enviarSolicitud = async(metodo, parametros) => {
-        await apiPostAdquisicion({ method: metodo, url: `${url}/${id}`, data: parametros }).then((respuesta) => {
+        await apiPostAdquisicion({ method: metodo, url: `${url}/${id}`, data: parametros }).then(() => {
             show_alerta(metodo==='POST'? 'Adquisicion agregada' : 'Adquisicion modificada', 'success');
             setEffect(true);
             actualizarFinanciamiento(true);

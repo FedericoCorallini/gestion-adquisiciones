@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './Dashboard.css';
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import ShowAsquisiciones from './components/ShowAdquisiciones';
 import ShowFinanciamientos from './components/ShowFinanciamientos';
 import { initKeycloak, keycloak } from './nuevoKeycloak';
 
 
 function Dashboard() {
-    const [style, setStyle] = useState("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion");
+    const [style] = useState("navbar-nav bg-gradient-primary sidebar sidebar-dark accordion");
 
     const handleLogout = () => {
         window.location.href='http://localhost:3000/';

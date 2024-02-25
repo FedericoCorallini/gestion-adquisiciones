@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysql-adquisiciones
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_DATABASE: adquisiciones
+      MYSQL_PASSWORD: 12345678
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+      - mysql-data:/var/lib/mysql
+
+  phpMyAdmin:
+    image: phpmyadmin/phpmyadmin:5.2.1
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    ports:
+      - "8180:80"
+
+  start_dependencies:
+    image: dadarek/wait-for-dependencies
+    depends_on:
+      - phpMyAdmin
+    command: mysql:3306
+
+  start_dependencies_2:
+    image: dadarek/wait-for-dependencies
+    depends_on:
+      - keycloak
+    command: keycloak:8080
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.5
+    container_name: keycloak-adquisiciones
+    ports:
+      - "8088:8080"
+    command: -v start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: mysql
+      KC_DB_URL_HOST: mysql
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_URL_PORT: 3306
+      KC_DB_USERNAME: keycloak_user
+      KC_DB_PASSWORD: 12345678
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import
+
+  adquisiciones-back:
+    build:
+      context: ./adquisiciones
+      dockerfile: Dockerfile
+    container_name: adquisiciones-back
+    depends_on:
+      - keycloak
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/adquisiciones?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 12345678
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8088/realms/adquisiciones
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWT_SET_URI: http://localhost:8088/realms/adquisiciones/protocol/openid-connect/certs
+
+  adquisiciones-front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: adquisiciones-front
+    depends_on:
+      - keycloak
+    ports:
+      - "3000:3000"
+
+volumes:
+  mysql-data:

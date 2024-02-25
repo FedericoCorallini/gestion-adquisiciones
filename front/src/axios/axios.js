@@ -1,5 +1,4 @@
-import axios from "axios"
-import { keycloakToken } from "../keycloak";
+import axios from "axios";
 
 const BASE_URL = 'http://localhost:8080'
 
