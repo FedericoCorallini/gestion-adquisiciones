@@ -3,7 +3,7 @@ import Keycloak from 'keycloak-js';
 
 const initOptions = {
   url: 'http://localhost:8088/',
-  realm: 'adquisiciones',
+  realm: 'basic',
   clientId: 'react-app',
 };
 

@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,7 +84,7 @@ public class EquipamientoService extends AdquisicionService{
         if (fuenteFinanciamiento.getMonto() < 0){
             throw new InvalidAdquisicionException("Fondos insuficientes");
         }
-
+        validarFechas(adquisicionDTO.getFechaIncorporacion());
         this.fuenteRepository.save(fuenteFinanciamiento);
         equipamientoRepository.save(e);
 
@@ -102,6 +103,7 @@ public class EquipamientoService extends AdquisicionService{
             if (fuenteFinanciamiento.getMonto() < 0){
                 throw new InvalidAdquisicionException("Fondos insuficientes");
             }
+            validarFechas(adquisicionDTO.getFechaIncorporacion());
             e.setDenominacion(adquisicionDTO.getDenominacion());
             e.setFechaIncorporacion(adquisicionDTO.getFechaIncorporacion());
             e.setCosto(adquisicionDTO.getCosto());
@@ -129,5 +131,11 @@ public class EquipamientoService extends AdquisicionService{
         equipamiento.setBorrado(true);
         equipamientoRepository.save(equipamiento);
         fuenteRepository.save(fuenteFinanciamiento);
+    }
+
+    public void validarFechas(LocalDate fechaIncorporacion){
+        if (fechaIncorporacion.isAfter(LocalDate.now())){
+            throw new InvalidAdquisicionException("La fecha de incorporacion no puede ser posterior a la fecha actual");
+        }
     }
 }

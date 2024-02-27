@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,7 +80,7 @@ public class BibliografiaService extends AdquisicionService{
         if (fuenteFinanciamiento.getMonto() < 0){
             throw new InvalidAdquisicionException("Fondos insuficientes");
         }
-
+        validarFechas(adquisicionDTO.getAnioPublicacion());
         this.fuenteRepository.save(fuenteFinanciamiento);
         bibliografiaRepository.save(b);
 
@@ -97,7 +98,7 @@ public class BibliografiaService extends AdquisicionService{
                     if (fuenteFinanciamiento.getMonto() < 0){
                         throw new InvalidAdquisicionException("Fondos insuficientes");
                     }
-
+                    validarFechas(adquisicionDTO.getAnioPublicacion());
                     bibliografia.setAnioPublicacion(adquisicionDTO.getAnioPublicacion());
                     bibliografia.setIssn(adquisicionDTO.getIssn());
                     bibliografia.setIsbn(adquisicionDTO.getIsbn());
@@ -133,6 +134,12 @@ public class BibliografiaService extends AdquisicionService{
                 .findFirst()
                 .orElseThrow(() ->  new InvalidAdquisicionException("La adquisicion no existe"));
 
+    }
+
+    public void validarFechas(LocalDate anioPublicacion){
+        if (anioPublicacion.isAfter(LocalDate.now())){
+            throw new InvalidAdquisicionException("El año de publicacion no puede ser posterior al año corriente");
+        }
     }
 
 

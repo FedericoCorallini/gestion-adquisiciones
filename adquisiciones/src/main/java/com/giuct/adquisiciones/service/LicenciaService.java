@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,6 +78,7 @@ public class LicenciaService extends AdquisicionService{
         if (fuenteFinanciamiento.getMonto() < 0){
             throw new InvalidAdquisicionException("Fondos insuficientes");
         }
+        validarFechas(adquisicionDTO.getAnio(),adquisicionDTO.getFechaOtorgamiento(),adquisicionDTO.getFechaVencimiento());
         this.fuenteRepository.save(fuenteFinanciamiento);
         licenciaRepository.save(l);
         return adquisicionDTO;
@@ -95,7 +97,7 @@ public class LicenciaService extends AdquisicionService{
             if (fuenteFinanciamiento.getMonto() < 0){
                 throw new InvalidAdquisicionException("Fondos insuficientes");
             }
-
+            validarFechas(adquisicionDTO.getAnio(),adquisicionDTO.getFechaOtorgamiento(),adquisicionDTO.getFechaVencimiento());
             l.setAnio(adquisicionDTO.getAnio());
             l.setFabricante(adquisicionDTO.getFabricante());
             l.setNombre(adquisicionDTO.getNombre());
@@ -130,5 +132,20 @@ public class LicenciaService extends AdquisicionService{
         licencia.setBorrado(true);
         licenciaRepository.save(licencia);
         fuenteRepository.save(fuenteFinanciamiento);
+    }
+
+    public void validarFechas(LocalDate anio, LocalDate fechaOtorgamiento, LocalDate fechaVencimiento){
+        if (anio.isAfter(LocalDate.now())){
+            throw new InvalidAdquisicionException("El año de la licencia no puede ser posterior al año corriente");
+        }
+        if (fechaOtorgamiento.isBefore(anio)){
+            throw new InvalidAdquisicionException("La fecha de otorgamiento no puede ser anterior al año de la licencia");
+        }
+        if (fechaOtorgamiento.isAfter(LocalDate.now())){
+            throw new InvalidAdquisicionException("La fecha de otorgamiento no puede ser posterior a la fecha actual");
+        }
+        if (fechaOtorgamiento.isAfter(fechaVencimiento)){
+            throw new InvalidAdquisicionException("La fecha de vencimiento no puede ser anterior a la fecha de otorgamiento");
+        }
     }
 }
